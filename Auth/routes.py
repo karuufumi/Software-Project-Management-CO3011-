@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import timedelta, datetime
 from uuid import uuid4
 
-from . import models, schemas, security, db, utils, config
+from . import models, schemas, security, db, config
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

@@ -1,0 +1,20 @@
+Dear all,
+tôi xin nhắc lại 1 số công việc mà bộ 3 cần làm trước khi sprint kết thúc:
+
+Scrum Master: 
+	Impediment Log: những khó khăn & khuất mắt các thành viên. Đây là nội dung duy nhất tôi nghĩ all members nên ghi vào, đặc biệt 4 devs.
+		Từ sprint 2 mọi người (all members) phải đề xuất (rõ ràng) ít nhất 1 cái nhé (tốt nhất nên 2-3), còn không tôi ghi nhận lại là không contribute.
+	Burndown / Throughput charts each sprint: cái graph và stats trên Jira + thông tin của những work đã làm trong sprint, cũng như những work còn lại
+	Retro action list and verification of last sprint’s actions: báo cáo sợ bộ sprint trc, tóm tắt th
+	Updated Working Agreement and Definition of Done: những điều đã làm sprint qua và các đề xuất cho sprint kế tiếp
+
+Business Analyst:
+	Refined backlog items with detailed acceptance criteria: update của backlog dựa trên injection của thầy
+	Mockups, UML diagrams, and sample data sets: deliverables tương ứng của sprint 1,2,3,4 (3 là mock data chúng ta có, 4 là data liên quan testing)
+	Traceability Matrix: 1 bảng thống kế job đã done, chi tiết trên mạng có template dạng excel, cái này 
+
+Product Owner:
+	Product roadmap: tôi đã hoàn thiện từ sprint 1
+	Ordered backlog with acceptance criteria: backlog
+	Sprint Goal statement: kế hoạch sprint này
+	Acceptance/rejection log at Sprint Review: đánh giá sprint tổng quát, thường thì cái này nhóm bàn r mk thuật lại thôi
