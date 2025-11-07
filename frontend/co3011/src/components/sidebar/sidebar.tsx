@@ -18,6 +18,7 @@ export interface SidebarItem {
   path?: string;
   onClick?: () => void;
   active?: boolean;
+  role?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
