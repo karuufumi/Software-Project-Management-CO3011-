@@ -1,6 +1,6 @@
-import React, { type ReactNode } from "react";
+import React, { type CSSProperties, type ReactNode } from "react";
 
-export interface WidgetProps {
+export interface WidgetProps extends CSSProperties {
   title?: string;
   children?: ReactNode;
   background?: string;
@@ -14,6 +14,7 @@ export const Widget: React.FC<WidgetProps> = ({
   background = "#fff",
   padding = "16px",
   roundness = 12,
+  ...props
 }) => {
   return (
     <div
@@ -27,9 +28,12 @@ export const Widget: React.FC<WidgetProps> = ({
         alignItems: "center",
         textAlign: "center",
         gap: "8px",
+        ...props,
       }}
     >
-      {title && <h3 style={{ fontWeight: 600, marginBottom: "8px" }}>{title}</h3>}
+      {title && (
+        <h3 style={{ fontWeight: 600, marginBottom: "8px" }}>{title}</h3>
+      )}
       {children}
     </div>
   );
