@@ -194,4 +194,5 @@ button {
   border-radius: var(--radius-md);
   margin: 24px;
   padding: 24px;
+  font-weight: 500;
 }
