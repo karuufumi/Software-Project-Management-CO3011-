@@ -1,7 +1,7 @@
 import sitemap from "../routes/sitemap";
 
 export const navList = (role: string) =>
-  sitemap.filter((item) => item.role === role || item.role === "all");
+  sitemap.filter((item) => item.role === role);
 
 export const navFocused = (role: string, elem: string) => {
   const allNav = navList(role);
