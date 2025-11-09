@@ -1,0 +1,10 @@
+.selected_tabs {
+  display: inline-block;
+  border: none !important;
+  border-bottom: 3px solid #4e7ef9 !important;
+  bottom: -1px;
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  padding: 6px 12px;
+}
