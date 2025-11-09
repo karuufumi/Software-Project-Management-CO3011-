@@ -6,6 +6,7 @@ import UserProfile from "../pages/user/UserProfile";
 import { MemberDashboard } from "../pages/user/Dashboard";
 import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
 import { BookContributor } from "../pages/user/BookContributor";
+import { History } from "../pages/user/History";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,14 @@ const router = createBrowserRouter([
                 element: <BookContributor />,
               },
             ],
+          },
+          {
+            path: "history",
+            element: (
+              <MainLayout navFocusedElem="history">
+                <History />
+              </MainLayout>
+            ),
           },
         ],
       },
