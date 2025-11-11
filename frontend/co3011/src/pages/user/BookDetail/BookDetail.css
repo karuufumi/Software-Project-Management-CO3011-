@@ -1,0 +1,175 @@
+.book-detail-container {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: "Inter", sans-serif;
+}
+
+/* Title section */
+.book-detail-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* Date and time (auto current time in component) */
+.book-detail-date {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+
+/* Overall layout */
+.book-detail-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+/* Left section */
+.book-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.book-cover {
+  width: 200px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.btn-borrow,
+.btn-queue {
+  width: 180px;
+  padding: 12px;
+  font-weight: 600;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 15px;
+}
+
+.btn-borrow {
+  background-color: #007bff;
+}
+
+.btn-borrow:hover {
+  background-color: #0069d9;
+}
+
+.btn-queue {
+  background-color: #28a745;
+}
+
+.btn-queue:hover {
+  background-color: #218838;
+}
+
+/* Right section */
+.book-right {
+  flex: 1;
+  min-width: 320px;
+}
+
+/* INFO GRID — smaller boxes */
+.book-info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.book-info-box {
+  background: #f5f5f5;
+  padding: 10px 14px;          /* reduced padding */
+  border-radius: 8px;
+  font-size: 14px;             /* smaller font */
+  line-height: 1.4;
+  width: 180px;                /* smaller width */
+  text-align: left;
+}
+
+.book-info-box strong {
+  display: block;
+  color: #222;
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Genre + Description column layout */
+.book-genre-description {
+  display: flex;
+  flex-direction: column;      /* stacked vertically */
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Genre section */
+.book-genre {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.genre-tags {
+  display: flex;
+  flex-direction: column;      /* vertical tags */
+  gap: 10px;
+}
+
+.genre-tag {
+  background-color: #d9d9d9;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  width: 160px;
+  text-align: center;
+}
+
+/* Description section */
+.book-description {
+  width: 100%;
+}
+
+.book-description p {
+  background: #f5f5f5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #444;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Responsive stacking for smaller screens */
+@media (max-width: 768px) {
+  .book-detail-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .book-genre-description {
+    width: 100%;
+    align-items: center;
+  }
+
+  .genre-tags {
+    align-items: center;
+  }
+
+  .book-info-box {
+    text-align: center;
+  }
+}

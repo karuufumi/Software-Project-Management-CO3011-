@@ -13,6 +13,10 @@ import { AdminLayout } from "../layout/AdminLayout";
 import { AdminDashboard } from "../pages/admin/Dashboard";
 import { NotFound } from "../components/notfound";
 import paths, { rootPaths } from "./paths";
+import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
+import Rankmap from "../pages/user/Rankmap/index";
+import {BookDetail} from "../pages/user/BookDetail/index";
+
 
 const router = createBrowserRouter([
   {
@@ -41,23 +45,50 @@ const router = createBrowserRouter([
               </MainLayout>
             ),
           },
+         {
+  path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <UserLibraryCatalog />
+    </MainLayout>
+  ),
+},
+{
+  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/book/:bookid`,
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <BookDetail />
+    </MainLayout>
+  ),
+},
+{
+  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/contribute`,
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <BookContributor />
+    </MainLayout>
+  ),
+},
+
+
           {
-            path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
-            element: <MainLayout navFocusedElem="library catalog" />,
-            children: [
-              {
-                index: true,
-                element: <UserLibraryCatalog />,
-              },
-              {
-                path: paths.USER.BOOK_CONTRIBUTE.replace(
-                  `${paths.USER.LIBRARY_CATALOG}/`,
-                  ""
-                ),
-                element: <BookContributor />,
-              },
-            ],
-          },
+  path: "leaderboard",
+  element: (
+    <MainLayout navFocusedElem="leaderboard">
+      <PointLeaderboardPage />
+    </MainLayout>
+  ),
+},
+{
+  path: "rankmap",
+  element: (
+    <MainLayout navFocusedElem="progress">
+      <Rankmap /> {/* 👈 import this from ../pages/user/rankmap/index */}
+    </MainLayout>
+  ),
+},
+
+
           {
             path: paths.USER.HISTORY.replace(rootPaths.userRoot, ""),
             element: (

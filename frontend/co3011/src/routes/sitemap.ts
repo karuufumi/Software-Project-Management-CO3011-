@@ -48,6 +48,14 @@ const sitemap: SidebarItem[] = [
     role: "lib",
     icon: createElement(History),
   },
+
+{
+  label: "Progress",
+  path: paths.USER.RANKMAP, 
+  role: "user",
+  icon: createElement(TrendingUp),
+},
+
   // Admin
   {
     label: "Dashboard",
