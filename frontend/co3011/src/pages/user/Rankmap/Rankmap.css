@@ -1,0 +1,130 @@
+.rankmap-container {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 50px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.rankmap-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 40px;
+}
+
+/* central spine */
+.rankmap-line {
+  position: absolute;
+  top: 120px;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-40px);
+  width: 2px;
+  background-color: #bdbdbd;
+  z-index: 0;
+}
+
+.rankmap-items {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* each bone */
+.rankmap-row {
+  position: relative;
+  width: 100%;
+  margin: 80px 0;
+  display: flex;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* branch line */
+.rankmap-row::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 2px;
+  background-color: #bdbdbd;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+/* tiles */
+.rankmap-box {
+  width: 220px;
+  height: 80px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  z-index: 2; /* bring above the line */
+}
+
+/* now lift the tile slightly above the line */
+.rankmap-row.left .rankmap-box {
+  right: 50%;
+  transform: translateX(-30px) translateY(-90px);
+}
+
+.rankmap-row.right .rankmap-box {
+  left: 50%;
+  transform: translateX(30px) translateY(-90px);
+}
+
+/* highlight current */
+.rankmap-box.current {
+  box-shadow: 0 0 0 3px black;
+}
+
+/* label for current */
+.rankmap-current-label {
+  position: absolute;
+  color: #333;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* When tile is on the RIGHT side */
+.rankmap-current-label.right {
+  right: -130px;
+  text-align: left;
+}
+
+/* When tile is on the LEFT side */
+.rankmap-current-label.left {
+  left: -130px;
+  text-align: right;
+}
+
+/* responsive stacking */
+@media (max-width: 700px) {
+  .rankmap-row::before {
+    width: 2px;
+    height: 60px;
+  }
+
+  .rankmap-row.left .rankmap-box,
+  .rankmap-row.right .rankmap-box {
+    position: static;
+    transform: none;
+    margin: 20px 0;
+  }
+}

@@ -1,5 +1,5 @@
 import Widget from "../../../components/widget/widget";
-import Button from "../../../components/button/button"; // ✅ correct import
+import Button from "../../../components/button/button"; 
 
 export default function UserProfile() {
   return (

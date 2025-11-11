@@ -1,8 +1,15 @@
 import { ProgressBar } from "../../../../../components/progessbar";
 import Widget from "../../../../../components/widget/widget";
 import viteLogo from "/vite.svg";
+import { useNavigate } from "react-router-dom";
+import paths from "../../../../../routes/paths";
 
 export function UserDashboardData() {
+    const navigate = useNavigate();
+
+  const handleSeeAll = () => {
+    navigate(paths.USER.LEADERBOARD);
+  }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
       <Widget title="New Book" alignItems="flex-start" textAlign="start">
@@ -65,7 +72,17 @@ export function UserDashboardData() {
           }}
         >
           <h3 style={{ color: "rgba(0,0,0,0.5)" }}>Leaderboard</h3>
-          <h3>See all {">>"} </h3>
+          <h3
+            onClick={handleSeeAll}
+            style={{
+              color: "blue",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            See all {">>"}
+          </h3>
+
         </div>
 
         <div style={{ display: "flex", width: "100%", gap: 10 }}>
