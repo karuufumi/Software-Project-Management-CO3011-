@@ -10,6 +10,19 @@ import {
 import paths from "./paths";
 
 const sitemap: SidebarItem[] = [
+  // Guest
+  {
+    label: "Dashboard",
+    path: paths.GUEST.DASHBOARD,
+    role: "guest",
+    icon: createElement(TrendingUp),
+  },
+  {
+    label: "History",
+    path: paths.GUEST.HISTORY,
+    role: "guest",
+    icon: createElement(History),
+  },
   // Member
   {
     label: "Dashboard",
