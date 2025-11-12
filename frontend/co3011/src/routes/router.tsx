@@ -8,7 +8,7 @@ import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
 import { BookContributor } from "../pages/user/BookContributor";
 import { History } from "../pages/user/History";
 import { LibrarianLayout } from "../layout/LibrarianLayout";
-import { LibrarianDashboard } from "../pages/librarian/Dashboard";
+import GeneralBooks  from "../pages/librarian/Dashboard";
 import { AdminLayout } from "../layout/AdminLayout";
 import { AdminDashboard } from "../pages/admin/Dashboard";
 import { GuestLayout } from "../layout/GuestLayout"; 
@@ -19,6 +19,9 @@ import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 
 import {BookDetail} from "../pages/user/BookDetail/index";
+import LibrarianBookDetailx from "../pages/librarian/Details";
+import LibrarianAppx from "../pages/librarian/BetterDashboard";
+
 import Login from "../pages/Login";
 
 
@@ -66,6 +69,34 @@ const router = createBrowserRouter([
               </MainLayout>
             ),
           },
+         {
+  path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <UserLibraryCatalog />
+    </MainLayout>
+  ),
+},
+{
+  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/book/:bookid`,
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <BookDetail />
+    </MainLayout>
+  ),
+},
+
+{
+  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/contribute`,
+  element: (
+    <MainLayout navFocusedElem="library catalog">
+      <BookContributor />
+    </MainLayout>
+  ),
+},
+
+
+
           {
             path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
             element: (
@@ -117,17 +148,43 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: rootPaths.libRoot,
+        path: `${rootPaths.libRoot}/books`,
         children: [
           {
             index: true,
             element: (
-              <LibrarianLayout navFocusedElem="dashboard">
-                <LibrarianDashboard />
+              <LibrarianLayout navFocusedElem="management">
+                <LibrarianAppx />
               </LibrarianLayout>
             ),
           },
         ],
+      },
+      {
+        path: `${rootPaths.libRoot}/management`,
+        children: [
+          {
+            index: true,
+            element: (
+              <LibrarianLayout navFocusedElem="management">
+                <LibrarianBookDetailx />
+              </LibrarianLayout>
+            ),
+          },
+        ]
+      },
+            {
+        path: `${rootPaths.libRoot}`,
+        children: [
+          {
+            index: true,
+            element: (
+              <LibrarianLayout navFocusedElem="management">
+                <GeneralBooks />
+              </LibrarianLayout>
+            ),
+          },
+        ]
       },
       {
         path: rootPaths.adminRoot,
