@@ -80,33 +80,10 @@ const BarChartPlaceholder: React.FC = () => {
 
       <div className="flex-grow flex items-end h-full">
         {/* Y-Axis labels (approximate) */}
-        <div className="flex flex-col justify-between h-full text-xs text-gray-400 pr-2 pb-4">
-          <span>400</span>
-          <span>300</span>
-          <span>200</span>
-          <span>100</span>
-          <span>0</span>
-        </div>
+
         
         {/* Chart Bars */}
-        <div className="flex flex-grow justify-around items-end h-full pt-4">
-          {chartData.map((data, index) => {
-            const height = (data / maxValue) * 90; // Scale height to 90% of container
-            return (
-              <div key={index} className="flex flex-col items-center h-full group">
-                <div 
-                  style={{ height: `${height}%` }}
-                  className="w-4 bg-indigo-500 rounded-t-md transition-all duration-300 hover:bg-indigo-600 cursor-pointer relative"
-                >
-                  <span className="absolute -top-6 text-xs bg-gray-700 text-white px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {data} books
-                  </span>
-                </div>
-                <span className="mt-1 text-xs text-gray-500">{months[index]}</span>
-              </div>
-            );
-          })}
-        </div>
+
       </div>
     </div>
   );
