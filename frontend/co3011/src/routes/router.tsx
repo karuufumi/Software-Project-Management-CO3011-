@@ -16,6 +16,7 @@ import paths, { rootPaths } from "./paths";
 import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 import {BookDetail} from "../pages/user/BookDetail/index";
+import Login from "../pages/Login";
 
 
 const router = createBrowserRouter([
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       </Suspense>
     ),
     children: [
+      {
+        path: "/login",
+        element: <Login />,
+      },
       {
         path: rootPaths.userRoot,
         children: [
