@@ -3,9 +3,18 @@ export const rootPaths = {
   libRoot: "/librarian",
   authRoot: "/authentication",
   adminRoot: "/admin",
+  guestRoot: "/guest", 
 };
 
 export default {
+  GUEST: { 
+    //! HISTORY OF GUEST NOT IMPLEMENTED YET
+    // HISTORY: `${rootPaths.guestRoot}/history`,
+    HISTORY: rootPaths.guestRoot,
+    DASHBOARD: rootPaths.guestRoot,
+    LIBRARY_CATALOG: `${rootPaths.guestRoot}/catalog`,
+    ABOUT: `${rootPaths.guestRoot}/about`,
+  },
   USER: {
     DASHBOARD: rootPaths.userRoot,
     LIBRARY_CATALOG: `${rootPaths.userRoot}catalog`,
