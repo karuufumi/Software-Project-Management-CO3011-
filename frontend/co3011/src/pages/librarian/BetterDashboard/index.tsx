@@ -215,7 +215,7 @@ const ContactCard: React.FC<{ icon: React.ReactNode, text: string, subText: stri
 
 // --- Main App Component ---
 
-export default function App() {
+export default function Appx() {
   const [requests, setRequests] = useState<Request[]>(MOCK_REQUESTS);
 
   const handleRequestAction = (id: number, action: 'accept' | 'reject') => {
