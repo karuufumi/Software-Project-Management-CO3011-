@@ -17,7 +17,10 @@ import { NotFound } from "../components/notfound";
 import paths, { rootPaths } from "./paths";
 import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
-import { BookDetail } from "../pages/user/BookDetail/index";
+
+import {BookDetail} from "../pages/user/BookDetail/index";
+import Login from "../pages/Login";
+
 
 const router = createBrowserRouter([
   {
@@ -39,6 +42,10 @@ const router = createBrowserRouter([
             ),
           },
         ],
+      },
+      {
+        path: "/login",
+        element: <Login />,
       },
       {
         path: rootPaths.userRoot,

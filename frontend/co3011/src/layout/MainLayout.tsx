@@ -2,7 +2,7 @@ import Sidebar from "../components/sidebar/sidebar";
 import Button from "../components/button/button";
 import { navFocused } from "../data/navbarListData";
 import type { PropsWithChildren } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 interface MainLayoutProps extends PropsWithChildren {
   navFocusedElem?: string;
@@ -10,7 +10,7 @@ interface MainLayoutProps extends PropsWithChildren {
 
 export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
   const itemsNav = navFocused("user", navFocusedElem);
-
+  const navigate = useNavigate();
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -34,7 +34,7 @@ export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
               label="Log out"
               color="var(--color-danger)"
               roundness={10}
-              onClick={() => alert("Logged out")}
+              onClick={() => navigate("/login")}
             />
           </div>
         }

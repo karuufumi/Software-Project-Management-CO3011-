@@ -76,7 +76,7 @@ export function GuestLayout({
                 label="Log in"
                 color="var(--color-primary)"
                 roundness={10}
-                onClick={handleLoginPlaceholder}
+                onClick={handleLogin}
               />
               <Button
                 label="Sign up"
