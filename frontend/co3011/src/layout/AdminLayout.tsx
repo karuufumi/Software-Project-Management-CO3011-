@@ -13,7 +13,7 @@ export function AdminLayout({
   children,
 }: AdminLayoutProps) {
   const itemsNav = navFocused("admin", navFocusedElem);
-
+  const navigate = useNavigate();
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -37,7 +37,7 @@ export function AdminLayout({
               label="Log out"
               color="var(--color-danger)"
               roundness={10}
-              onClick={() => alert("Logged out")}
+              onClick={() => navigate("/login")}
             />
           </div>
         }

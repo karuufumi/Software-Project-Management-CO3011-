@@ -2,7 +2,7 @@ import Sidebar from "../components/sidebar/sidebar";
 import Button from "../components/button/button";
 import { navFocused } from "../data/navbarListData";
 import type { PropsWithChildren } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 interface LibLayoutProps extends PropsWithChildren {
   navFocusedElem?: string;
@@ -13,7 +13,7 @@ export function LibrarianLayout({
   children,
 }: LibLayoutProps) {
   const itemsNav = navFocused("lib", navFocusedElem);
-
+  const navigate = useNavigate();
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -37,7 +37,7 @@ export function LibrarianLayout({
               label="Log out"
               color="var(--color-danger)"
               roundness={10}
-              onClick={() => alert("Logged out")}
+              onClick={() => navigate("/login")}
             />
           </div>
         }
