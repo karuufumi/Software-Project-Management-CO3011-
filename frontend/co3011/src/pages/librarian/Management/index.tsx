@@ -22,7 +22,7 @@ const rarityColors: Record<string, string> = {
   Unique: "text-red-500",
 };
 
-export default function BookDetailx({
+export default function LBookDetailx({
   title,
   author,
   year,

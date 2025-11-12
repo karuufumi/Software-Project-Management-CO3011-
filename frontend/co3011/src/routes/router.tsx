@@ -16,9 +16,8 @@ import paths, { rootPaths } from "./paths";
 import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 import {BookDetail} from "../pages/user/BookDetail/index";
-import BookDetailx from "../pages/librarian/Management";
 import LibrarianBookDetailx from "../pages/librarian/Details";
-import Appx from "../pages/librarian/BetterDashboard";
+import LibrarianAppx from "../pages/librarian/BetterDashboard";
 
 const router = createBrowserRouter([
   {
@@ -109,7 +108,7 @@ const router = createBrowserRouter([
             index: true,
             element: (
               <LibrarianLayout navFocusedElem="management">
-                <Appx />
+                <LibrarianAppx />
               </LibrarianLayout>
             ),
           },
