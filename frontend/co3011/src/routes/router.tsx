@@ -17,7 +17,6 @@ import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 import {BookDetail} from "../pages/user/BookDetail/index";
 
-
 const router = createBrowserRouter([
   {
     element: (
