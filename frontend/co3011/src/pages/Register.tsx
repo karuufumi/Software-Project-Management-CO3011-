@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ACCOUNT = {
@@ -6,30 +6,37 @@ const ACCOUNT = {
   password: "123456",
 };
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (password && confirmPassword && password !== confirmPassword) {
+      setError("Passwords do not match");
+    } else {
+        console.log("Passwords match");
+        setError("");
+    }
+  }, [confirmPassword, password]);
+
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (email === ACCOUNT.email && password === ACCOUNT.password) {
-      localStorage.setItem("loggedIn", "true");
-      navigate("/");
-    } else {
-      setError("Incorrect email or password");
-    }
+    alert("Registration successful! Please login with your new credentials.");
+
+    navigate("/login");
   };
 
   return (
     <div className="login-container">
-      <form className="login-card" onSubmit={handleLogin}>
-        <h2 className="title">Login</h2>
-        <p className="subtitle">Welcome back! Please log in to access your account.</p>
+      <form className="login-card" onSubmit={handleRegister}>
+        <h2 className="title">Register</h2>
+        <p className="subtitle">Feel nice to create a new account.</p>
 
         {error && <p className="error">{error}</p>}
 
@@ -58,10 +65,23 @@ export default function Login() {
           </span>
         </div>
 
-        <div className="forgot">Forgot Password?</div>
+        <label>Confirm Password</label>
+        <div className="password-wrapper">
+          <input
+            className="input"
+            type={showPwd ? "text" : "password"}
+            placeholder="Confirm your Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <span className="eye" onClick={() => setShowPwd(!showPwd)}>
+            {showPwd ? "👁️" : "👁️‍🗨️"}
+          </span>
+        </div>
 
         <button type="submit" className="login-btn">
-          Login
+          Register
         </button>
 
         <div className="divider">
@@ -69,7 +89,7 @@ export default function Login() {
         </div>
 
         <div className="signup-text">
-          Don’t have an account? <a href="/register">Sign Up</a>
+          Already have an account? <a href="/login">Login</a>
         </div>
       </form>
     </div>
