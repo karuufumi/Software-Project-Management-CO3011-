@@ -3,10 +3,8 @@ import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import { NotFound } from "../components/notfound";
 import { AdminLayout } from "../layout/AdminLayout";
-import { LibrarianLayout } from "../layout/LibrarianLayout";
 import { MainLayout } from "../layout/MainLayout";
 import { AdminDashboard } from "../pages/admin/Dashboard";
-import { LibrarianDashboard } from "../pages/librarian/Dashboard";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import { BookContributor } from "../pages/user/BookContributor";
@@ -22,21 +20,17 @@ import { History } from "../pages/user/History";
 // =======
 import { LibrarianLayout } from "../layout/LibrarianLayout";
 import GeneralBooks  from "../pages/librarian/Dashboard";
-import { AdminLayout } from "../layout/AdminLayout";
-import { AdminDashboard } from "../pages/admin/Dashboard";
 import { GuestLayout } from "../layout/GuestLayout"; 
 import { GuestDashboard } from "../pages/guest/GuestDashboard"; 
-import { NotFound } from "../components/notfound";
 import paths, { rootPaths } from "./paths";
 import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 import UserProfile from "../pages/user/UserProfile";
 
-import {BookDetail} from "../pages/user/BookDetail/index";
 import LibrarianBookDetailx from "../pages/librarian/Details";
 import LibrarianAppx from "../pages/librarian/BetterDashboard";
+import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
 
-import Login from "../pages/Login";
 
 
 const router = createBrowserRouter([
