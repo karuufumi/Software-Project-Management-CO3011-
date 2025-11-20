@@ -30,20 +30,23 @@ namespace backend.models
 
     }
 
+
     public class Membership
     {
-        
-        public required string MembershipId { get; set; }
-        public required string MemberName { get; set; }
-        public required string StartDate { get; set; }
-        public required string EndDate { get; set; }
-        public required bool IsActive { get; set; }
-        
-        public required Tier MembershipTier { get; set; }  = Tier.Ngheo;
+        public required int MembershipId { get; set; }   // PK
 
-        
+        // FK to User
+        public required int UserId { get; set; }         
+        public required UserModel User { get; set; }     // Navigation property
 
+        public string StartDate { get; set; } = default!;
+        public string EndDate { get; set; } = default!;
+        public bool IsActive { get; set; }
+
+        public Tier MembershipTier { get; set; } = Tier.Ngheo;
     }
+}
+
 
     public enum Tier
     {
@@ -52,5 +55,3 @@ namespace backend.models
         TuBan,
         VIP
     }
-
-}
