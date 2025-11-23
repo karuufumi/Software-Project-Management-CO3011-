@@ -61,6 +61,12 @@ const sitemap: SidebarItem[] = [
     role: "lib",
     icon: createElement(History),
   },
+  {
+    label: "Missing Book Handler",
+    path: paths.LIBRARIAN.MISSING_BOOK_HANDLER,
+    role: "lib",
+    icon: createElement(BookMarked),
+  },
 
 {
   label: "Progress",
