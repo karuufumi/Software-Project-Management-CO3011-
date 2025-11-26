@@ -2,7 +2,7 @@ import Sidebar from "../components/sidebar/sidebar";
 import Button from "../components/button/button";
 import { navFocused } from "../data/navbarListData";
 import type { PropsWithChildren } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 interface AdminLayoutProps extends PropsWithChildren {
   navFocusedElem?: string;

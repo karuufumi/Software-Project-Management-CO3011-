@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+/*
 const ACCOUNT = {
   email: "admin@gmail.com",
   password: "123456",
 };
+*/
 
 export default function Register() {
   const navigate = useNavigate();

@@ -47,8 +47,8 @@ const pendingRequests: Request[] = [
   { name: 'Jane Doe', book: 'Mein Kaft', from: '15/10/2025', to: '15/11/2025', avatar: 'https://placehold.co/40x40/EC4899/ffffff?text=JD' },
 ];
 
-const chartData = [50, 80, 120, 90, 150, 180, 220, 280, 310, 250, 350, 400];
-const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+//const chartData = [50, 80, 120, 90, 150, 180, 220, 280, 310, 250, 350, 400];
+//const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
 // --- Components ---
 
@@ -67,7 +67,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, isLarge = false }) 
 );
 
 const BarChartPlaceholder: React.FC = () => {
-  const maxValue = 400; // Max value for scaling bars
+ // const maxValue = 400; // Max value for scaling bars
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl h-[400px] md:h-[350px] flex flex-col">
