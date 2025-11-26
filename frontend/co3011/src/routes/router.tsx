@@ -30,7 +30,7 @@ import UserProfile from "../pages/user/UserProfile";
 import LibrarianBookDetailx from "../pages/librarian/Details";
 import LibrarianAppx from "../pages/librarian/BetterDashboard";
 import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
-
+import MissingBookHandler from "../pages/librarian/MissingBookHandler";
 
 
 const router = createBrowserRouter([
@@ -193,6 +193,19 @@ const router = createBrowserRouter([
             element: (
               <LibrarianLayout navFocusedElem="management">
                 <GeneralBooks />
+              </LibrarianLayout>
+            ),
+          },
+        ]
+      },
+      {
+        path: `${rootPaths.libRoot}/missing-book`,
+        children: [
+          {
+            index: true,
+            element: (
+              <LibrarianLayout navFocusedElem="missing book">
+                <MissingBookHandler />
               </LibrarianLayout>
             ),
           },
