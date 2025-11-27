@@ -15,12 +15,13 @@ namespace backend.Data
         public DbSet<Student> Students { get; set; }
         public DbSet<LibrarianModel> Librarians { get; set; }
         public DbSet<AdminModel> Admins { get; set; } // Make sure you have this model class
-        public DbSet<Membership> Memberships { get; set; }
+        //public DbSet<Membership> Memberships { get; set; }
 
+        public DbSet<Queue> Queues { get; set; }
         // --- LIBRARY SYSTEM (NEW) ---
         public DbSet<BookModel> Books { get; set; }
-        public DbSet<BorrowRequest> BorrowRequests { get; set; } // The Queue
-        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
+        //public DbSet<BorrowRequest> BorrowRequests { get; set; } // The Queue
+//        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
 
         // (This looked like a typo in your snippet, generic object? 
         //  I commented it out unless you have a specific model for it)
@@ -47,15 +48,7 @@ namespace backend.Data
             modelBuilder.Entity<AdminModel>().HasBaseType<UserModel>();
 
             // Membership Config
-            modelBuilder.Entity<Membership>(entity =>
-            {
-                entity.HasKey(e => e.MembershipId);
-                entity.HasOne(m => m.User)
-                      .WithMany() 
-                      .HasForeignKey(m => m.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
-
+            
             // ==============================
             // 2. LIBRARY SYSTEM CONFIG
             // ==============================
@@ -73,48 +66,14 @@ namespace backend.Data
             });
 
             // --- B. BORROW REQUEST (THE QUEUE) ---
-            modelBuilder.Entity<BorrowRequest>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Status)
-                      .HasConversion<string>(); // Store "Waiting", "Allocated" as text
-
-                // RELATIONSHIPS
-                entity.HasOne(e => e.Book)
-                      .WithMany()
-                      .HasForeignKey(e => e.BookId)
-                      .OnDelete(DeleteBehavior.Cascade); // If Book deleted, queue is gone
-
-                entity.HasOne(e => e.User)
-                      .WithMany()
-                      .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade); // If User deleted, remove from queue
-
-                // *** CRITICAL PERFORMANCE INDEX ***
-                // This makes finding "The Next Person Waiting" instant.
-                entity.HasIndex(e => new { e.BookId, e.Status, e.RequestedAt })
-                      .HasDatabaseName("IX_Queue_Priority");
-            });
+            
 
             // --- C. BORROW RECORD (ACTIVE LOANS) ---
             
             // Inside ApplicationDbContext.OnModelCreating
+            
 
-            modelBuilder.Entity<BorrowRecord>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                // Relationship: A Record belongs to One Book
-                entity.HasOne(e => e.Book)
-                    .WithMany() // Assuming Book doesn't have a 'BorrowHistory' list
-                    .HasForeignKey(e => e.BookId);
-
-                // Relationship: A Record belongs to One User
-                entity.HasOne(e => e.User)
-                    .WithMany() // Assuming User doesn't have a 'BorrowHistory' list
-                    .HasForeignKey(e => e.UserId);
-            });
+            
         }
     }
 }

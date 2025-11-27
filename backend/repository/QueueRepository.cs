@@ -1,8 +1,9 @@
-using backend.Data;
 using backend.models;
 using Microsoft.EntityFrameworkCore;
+using backend.repository;
+using backend.Data;
 
-namespace backend.Repositories
+namespace backend.repository
 {
     public class QueueRepository : IQueueRepository
     {
@@ -13,97 +14,60 @@ namespace backend.Repositories
             _context = context;
         }
 
-        // ==========================================
-        // 1. CORE ACTIONS (CRUD)
-        // ==========================================
-
-        public async Task AddAsync(BorrowRequest item)
+        public Task AddToQueue(BookModel book, int userId)
         {
-            await _context.BorrowRequests.AddAsync(item);
-            await _context.SaveChangesAsync();
-        }
+            return _context.Queues
+                .Where(q => q.UserId == userId)
+                .ForEachAsync(q => q.bookList.Add(book));
+        } 
 
-        public async Task UpdateAsync(BorrowRequest item)
-        {
-            _context.BorrowRequests.Update(item);
-            await _context.SaveChangesAsync();
-        }
         
-        public async Task<BorrowRequest?> GetRequestByIdAsync(int id)
+        public Task<Queue?> GetQueueByBookId(int bookId, int userId)
         {
-            return await _context.BorrowRequests
-                .Include(br => br.User) // Load User details
-                .Include(br => br.Book) // Load Book details
-                .FirstOrDefaultAsync(br => br.Id == id);
+            return _context.Queues
+                .Include(q => q.bookList)
+                .FirstOrDefaultAsync(q => q.bookList.Any(b => b.BookId == bookId) && q.UserId == userId);
         }
 
-        public async Task<List<BorrowRequest>> GetAllRequestsAsync()
+        
+        public Task<Queue?> GetQueueByUserId(int userId)
         {
-            return await _context.BorrowRequests
-                .Include(br => br.Book)
-                .Include(br => br.User)
-                .ToListAsync();
+            return _context.Queues
+                .Include(q => q.bookList)
+                .FirstOrDefaultAsync(q => q.UserId == userId);
         }
 
-        // ==========================================
-        // 2. QUEUE LOGIC (The "Brain")
-        // ==========================================
 
-        // Find the specific person who should get the book next.
-        // It looks for the OLDEST request that is still WAITING.
-        public async Task<BorrowRequest?> GetNextPersonWaitingAsync(int bookId)
+        public Task IsQueueEmpty(int userId)
         {
-            return await _context.BorrowRequests
-                .Where(br => br.BookId == bookId 
-                             && br.Status == RequestStatus.Waiting) 
-                .OrderBy(br => br.RequestedAt) // First Come, First Served
+            return _context.Queues
+                .Include(q => q.bookList)
+                .Where(q => q.UserId == userId && !q.bookList.Any())
                 .FirstOrDefaultAsync();
         }
 
-        // Check if a user is trying to join a line they are already in.
-        // Returns TRUE if they are Waiting OR if the book is already Allocated to them.
-        public async Task<bool> IsUserAlreadyInQueueAsync(int userId, int bookId)
+        public Task Pop(int userId)
         {
-            return await _context.BorrowRequests
-                .AnyAsync(br => br.UserId == userId 
-                                && br.BookId == bookId 
-                                && (br.Status == RequestStatus.Waiting || br.Status == RequestStatus.Allocated));
+            return _context.Queues
+                .Where(q => q.UserId == userId)
+                .ForEachAsync(q => 
+                {
+                    if (q.bookList.Any())
+                    {
+                        q.bookList.RemoveAt(0); // Remove the first book in the queue
+                    }
+                });
         }
 
-        // Calculate "You are #5 in line".
-        // Optimized: Uses SQL COUNT instead of downloading the whole list.
-        public async Task<int> GetQueuePositionAsync(int userId, int bookId)
+
+        public Task<BookModel?> Peek(int userId)
         {
-            // A. Find the user's current request ticket
-            var userRequest = await _context.BorrowRequests
-                .FirstOrDefaultAsync(br => br.UserId == userId 
-                                           && br.BookId == bookId 
-                                           && br.Status == RequestStatus.Waiting);
-
-            // If they aren't in line, return -1
-            if (userRequest == null) return -1;
-
-            // B. Count how many people have an EARLIER requested time
-            var countAhead = await _context.BorrowRequests
-                .CountAsync(br => br.BookId == bookId 
-                                  && br.Status == RequestStatus.Waiting 
-                                  && br.RequestedAt < userRequest.RequestedAt);
-
-            return countAhead + 1; // 0 people ahead means position #1
+            return _context.Queues
+                .Where(q => q.UserId == userId)
+                .SelectMany(q => q.bookList)
+                .FirstOrDefaultAsync();
         }
 
-        // ==========================================
-        // 3. MAINTENANCE (Background Jobs)
-        // ==========================================
-
-        // Find people who were told "Come pick it up" but never showed up.
-        public async Task<List<BorrowRequest>> GetExpiredAllocationsAsync()
-        {
-            return await _context.BorrowRequests
-                .Where(br => br.Status == RequestStatus.Allocated 
-                             && br.AllocationExpiry.HasValue 
-                             && br.AllocationExpiry.Value < DateTime.UtcNow) // Always use UtcNow
-                .ToListAsync();
-        }
+        
     }
 }

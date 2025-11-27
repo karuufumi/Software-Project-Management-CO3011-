@@ -20,6 +20,11 @@ public abstract class UserModel
 
     public Role UserRole { get; set; }
     
+    public BookModel? BorrowedBook { get; set; }
+    public Queue BorrowList { get; set; } = default!;
+
+    public int MembershipPoints { get; set; } = 0;
+    
     public UserModel(int id, string name, string email, Role role)
     {
         Id = id;
@@ -27,6 +32,8 @@ public abstract class UserModel
         Email = email;
         UserRole = role;
     }
+
+
 }
 
 

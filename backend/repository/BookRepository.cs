@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace backend.repository
@@ -43,7 +44,19 @@ namespace backend.repository
         {
             // update the availability status of the book
 
-            throw new NotImplementedException();
+            return _context.Set<BookModel>()
+                .Where(b => b.BookId == id)
+                .ForEachAsync(b => 
+                {
+                    if (b.Status == BookStatus.Available)
+                    {
+                        b.Status = BookStatus.Borrowed;
+                    }
+                    else
+                    {
+                        b.Status = BookStatus.Available;
+                    }
+                });
         }
     }
 }

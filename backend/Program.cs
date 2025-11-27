@@ -2,27 +2,36 @@
 using backend.repository;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<BookRepository>();
-builder.Services.AddScoped<MembershipRepository>();
-builder.Services.AddControllers();
-
-var app = builder.Build();
-
-// Auto-create database
-using (var scope = app.Services.CreateScope())
+namespace backend
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Add services
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IBookRepository, BookRepository>();
+            builder.Services.AddScoped<IQueueRepository, QueueRepository>();
+            builder.Services.AddControllers();
+
+            var app = builder.Build();
+
+            // Auto-create database
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                await context.Database.EnsureCreatedAsync();
+            }
+
+            app.UseRouting();
+            app.MapControllers();
+
+            app.Run();
+        }
+    }
 }
-
-app.UseRouting();
-app.MapControllers();
-
-app.Run();

@@ -1,14 +1,32 @@
 using backend.models;
+using Microsoft.EntityFrameworkCore;
+using backend.repository;
 
-namespace backend.Repositories
+
+
+namespace backend.repository
 {
+    
     public interface IQueueRepository
     {
-        Task AddAsync(BorrowRequest item);
-        Task UpdateAsync(BorrowRequest item);
-        Task<BorrowRequest?> GetNextPersonWaitingAsync(int bookId);
-        Task<bool> IsUserAlreadyInQueueAsync(int userId, int bookId);
-        Task<int> GetQueuePositionAsync(int userId, int bookId);
-        Task<List<BorrowRequest>> GetExpiredAllocationsAsync();
+        // Define methods for managing the Queue here
+        //Task AddToQueue(Queue queueEntry);
+
+        Task AddToQueue(BookModel book, int userId);
+        //Task<Queue?> GetQueueByUserId(int userId);
+        Task Pop(int userId);
+
+        Task<BookModel?> Peek(int userId);
+
+        //Task UpdateQueueEntry(Queue queueEntry);
+
+        
+        Task<Queue?> GetQueueByBookId(int bookId, int userId);
+
+        Task<Queue?> GetQueueByUserId(int userId);
+        Task IsQueueEmpty(int userId);
+
+        
     }
+    
 }

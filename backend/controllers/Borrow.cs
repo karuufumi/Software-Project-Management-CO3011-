@@ -1,4 +1,4 @@
-
+using backend.models;
 using backend.repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,50 +6,54 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.controllers
 {
     [ApiController]
-    [Route("/")]
+    [Route("api/borrow/[controller]")]
     public class BorrowController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IQueueRepository _queueRepository;
 
-        public BorrowController(IBookRepository bookRepository)
+        public BorrowController(IBookRepository bookRepository, IUserRepository userRepository, IQueueRepository queueRepository)
         {
             _bookRepository = bookRepository;
+            _userRepository = userRepository;
+            _queueRepository = queueRepository;
         }
 
-        [HttpPost("{id}/borrow")]
-        public async Task<IActionResult> BorrowBook(int id)
+        // Implement borrowing logic here
+        [HttpPost("{userId}/{bookId}")]
+        public async Task<IActionResult> BorrowBook(int userId, int bookId)
         {
-            var book = await _bookRepository.GetBookById(id);
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+            if (user.BorrowedBook != null)
+            {
+                return BadRequest("User has already borrowed a book");
+            }
+
+            var book = await _bookRepository.GetBookById(bookId);
             if (book == null)
             {
-                return NotFound();
+                return NotFound("Book not found");
             }
 
-            if (!book.IsAvailable)
+            if (book.Status != BookStatus.Available)
             {
-                return BadRequest("Book is already borrowed.");
+                // put the book into the queue for the user
+                await _queueRepository.AddToQueue(book, userId);
+                return Ok("Book is not available. Added to your borrow queue.");
             }
 
-            await _bookRepository.UpdateStatus(id);
-            return Ok("Book borrowed successfully.");
-        }
+            // Update book status to Borrowed
+            user.BorrowedBook = book;
+            await _userRepository.UpdateUser(user);
+            book.Status = BookStatus.Borrowed;
+            await _bookRepository.UpdateBook(book);
 
-        [HttpPost("{id}/return")]
-        public async Task<IActionResult> ReturnBook(int id)
-        {
-            var book = await _bookRepository.GetBookById(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            if (!book.IsAvailable)
-            {
-                return BadRequest("Book is not currently borrowed.");
-            }
-
-            await _bookRepository.UpdateStatus(id);
-            return Ok("Book returned successfully.");
+            return Ok("Book borrowed successfully");
         }
     }
 }

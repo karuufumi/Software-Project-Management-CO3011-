@@ -10,9 +10,7 @@ namespace backend.models
     {
         Available,      // Free for anyone
         Borrowed,       // Currently out with a user
-        Reserved,       // Sitting on the shelf waiting for Queue Winner
         Lost,           // Gone forever
-        Maintenance     // Broken/Repaired
     }
 
     public enum RequestStatus

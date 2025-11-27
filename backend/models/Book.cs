@@ -10,7 +10,6 @@ namespace backend.models
         public string ISBN { get; set; } = string.Empty;
         public Genre BookGenre { get; set; }
 
-        // CRITICAL CHANGE: Replaced 'bool IsAvailable' with this Enum
         public BookStatus Status { get; set; } = BookStatus.Available;
     }
 }
