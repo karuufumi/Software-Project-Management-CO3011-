@@ -10,16 +10,29 @@ namespace backend.Data
         {
         }
 
+        // --- USER & ROLES ---
         public DbSet<UserModel> Users { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<LibrarianModel> Librarians { get; set; }
+        public DbSet<AdminModel> Admins { get; set; } // Make sure you have this model class
         public DbSet<Membership> Memberships { get; set; }
+
+        // --- LIBRARY SYSTEM (NEW) ---
+        public DbSet<BookModel> Books { get; set; }
+        public DbSet<BorrowRequest> BorrowRequests { get; set; } // The Queue
+        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
+
+        // (This looked like a typo in your snippet, generic object? 
+        //  I commented it out unless you have a specific model for it)
+        // public object MembershipRequests { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // USER BASE ENTITY
+            // ==============================
+            // 1. USER HIERARCHY & CONFIG
+            // ==============================
             modelBuilder.Entity<UserModel>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -28,26 +41,79 @@ namespace backend.Data
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             });
 
-            // INHERITANCE
-            modelBuilder.Entity<Student>()
-                .HasBaseType<UserModel>();
+            // TPH (Table Per Hierarchy) Inheritance
+            modelBuilder.Entity<Student>().HasBaseType<UserModel>();
+            modelBuilder.Entity<LibrarianModel>().HasBaseType<UserModel>();
+            modelBuilder.Entity<AdminModel>().HasBaseType<UserModel>();
 
-            modelBuilder.Entity<LibrarianModel>()
-                .HasBaseType<UserModel>();
-            
-            modelBuilder.Entity<AdminModel>()
-                .HasBaseType<UserModel>();
-
-            // MEMBERSHIP
+            // Membership Config
             modelBuilder.Entity<Membership>(entity =>
             {
                 entity.HasKey(e => e.MembershipId);
-
-                // Membership belongs to ONE User
                 entity.HasOne(m => m.User)
-                      .WithMany()             // If User has many memberships, use .WithMany(u => u.Memberships)
+                      .WithMany() 
                       .HasForeignKey(m => m.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ==============================
+            // 2. LIBRARY SYSTEM CONFIG
+            // ==============================
+
+            // --- A. BOOK MODEL ---
+            modelBuilder.Entity<BookModel>(entity =>
+            {
+                entity.HasKey(e => e.BookId);
+                entity.Property(e => e.Title).IsRequired();
+                
+                // Store the Enum as a String (e.g., "Available", "Lost") 
+                // instead of an Integer (0, 1) for easier DB debugging.
+                entity.Property(e => e.Status)
+                      .HasConversion<string>();
+            });
+
+            // --- B. BORROW REQUEST (THE QUEUE) ---
+            modelBuilder.Entity<BorrowRequest>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Status)
+                      .HasConversion<string>(); // Store "Waiting", "Allocated" as text
+
+                // RELATIONSHIPS
+                entity.HasOne(e => e.Book)
+                      .WithMany()
+                      .HasForeignKey(e => e.BookId)
+                      .OnDelete(DeleteBehavior.Cascade); // If Book deleted, queue is gone
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade); // If User deleted, remove from queue
+
+                // *** CRITICAL PERFORMANCE INDEX ***
+                // This makes finding "The Next Person Waiting" instant.
+                entity.HasIndex(e => new { e.BookId, e.Status, e.RequestedAt })
+                      .HasDatabaseName("IX_Queue_Priority");
+            });
+
+            // --- C. BORROW RECORD (ACTIVE LOANS) ---
+            
+            // Inside ApplicationDbContext.OnModelCreating
+
+            modelBuilder.Entity<BorrowRecord>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                // Relationship: A Record belongs to One Book
+                entity.HasOne(e => e.Book)
+                    .WithMany() // Assuming Book doesn't have a 'BorrowHistory' list
+                    .HasForeignKey(e => e.BookId);
+
+                // Relationship: A Record belongs to One User
+                entity.HasOne(e => e.User)
+                    .WithMany() // Assuming User doesn't have a 'BorrowHistory' list
+                    .HasForeignKey(e => e.UserId);
             });
         }
     }

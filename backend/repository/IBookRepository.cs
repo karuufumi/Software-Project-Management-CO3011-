@@ -5,17 +5,7 @@ namespace backend.repository
 {
    /*
    
-public BookModel(int bookId, string title, string author, string isbn, bool isAvailable = true, Genre Bookgenre = Genre.Fiction)
-        {
-            BookId = bookId;
-            Title = title;
-            Author = author;
-            ISBN = isbn;
-            isAvailable = IsAvailable;
-            BookGenre = Bookgenre;
-        }
-
-   */
+p   */
    public interface IBookRepository
     {
         

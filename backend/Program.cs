@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using backend.Data;
+﻿using backend.Data;
 using backend.repository;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<UserRepository, StudentRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<BookRepository>();
+builder.Services.AddScoped<MembershipRepository>();
 builder.Services.AddControllers();
 
 var app = builder.Build();

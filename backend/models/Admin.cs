@@ -4,7 +4,7 @@ using backend.models;
 namespace backend.models 
 {
     
-    class AdminModel : UserModel
+    public class AdminModel : UserModel
     {
         private string AdminCode { get; set; }
 

@@ -3,8 +3,16 @@ from models import User, Role
 from utils import hash_string, verify_hash
 from db import get_conn, get_cursor, close_conn, close_cursor
 #for id
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+import time 
 import uuid
-
+import pyotp
+import random
+import string
+from datetime import datetime, timedelta
 
 def create_user(id: str, name: str, email: str, hashedpwd: str, role: Role) -> User:
     return User(id=id, name=name, email=email, hashedpwd=hashedpwd, role=role)
@@ -44,6 +52,20 @@ def register_user(name: str, email: str, password: str, role: Role = Role.USER) 
         close_cursor(cursor)
         close_conn(conn)
 
+
+# Store verification codes temporarily (use Redis in production)
+verification_codes = {}
+
+
+def generate_verification_code(length: int = 6) -> str:
+    """Generate a random verification code."""
+    return ''.join(random.choices(string.digits, k=length))
+
+
+
+
+    
+
 def authenticate_user(email: str, password: str) -> Dict[str, Any]:
     """Authenticates user and returns user data if valid."""
     
@@ -69,3 +91,21 @@ def authenticate_user(email: str, password: str) -> Dict[str, Any]:
         close_conn(conn)
 
 
+
+def get_user_by_id(user_id: str) -> User | None:
+    """Fetch user by ID from database."""
+    conn = get_conn("auth.db")
+    cursor = get_cursor(conn)
+    
+    try:
+        cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return None
+        
+        user_id, name, email, hashed_pwd, role = result
+        return User(id=user_id, name=name, email=email, hashedpwd=hashed_pwd, role=Role(role))
+    finally:
+        close_cursor(cursor)
+        close_conn(conn)

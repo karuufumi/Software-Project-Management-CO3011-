@@ -13,12 +13,12 @@ namespace backend.models
     
     public class MembershipRequest
     {
-        public required string MemberId { get; set; }
+        public  string MemberId { get; set; }
         public  MembershipStatus Status { get; set; } = MembershipStatus.pending;
 
-        public required string ApplicantId { get; set; }
+        public  string ApplicantId { get; set; }
 
-        public required string RequestDate { get; set; } 
+        public  string RequestDate { get; set; } 
 
         public MembershipRequest(string memberId, string applicantId, string requestDate, MembershipStatus status = MembershipStatus.pending)
         {

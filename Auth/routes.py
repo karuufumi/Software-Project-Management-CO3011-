@@ -1,76 +1,123 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from datetime import timedelta, datetime
-from uuid import uuid4
+from fastapi import FastAPI, HTTPException, Depends, Header
+from pydantic import BaseModel, EmailStr
+from controllers import authenticate_user, register_user, get_user_by_id
+from models import Role
+from utils import generate_token, verify_token, payload
+import os
+from typing import Optional
 
-from . import models, schemas, security, db, config
+app = FastAPI(title="Authentication Microservice", version="1.0.1")
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+# Pydantic models for request validation
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
 
-@router.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(db.get_db)):
-    if db.query(models.User).filter(models.User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        hashed_password=security.hash_password(user.password),
-        role=user.role
+class RegisterRequest(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: Optional[Role] = Role.USER
+
+class TokenResponse(BaseModel):
+    token: str
+    user: dict
+
+# Dependency to verify token
+def get_current_user(authorization: str = Header(None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
+    
+    token = authorization.split(" ")[1]
+    secret_key = os.getenv("JWT_SECRET", "secret-key")
+    
+    user_data = verify_token(token, secret_key)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    return user_data
+
+@app.get("/")
+async def root():
+    return {"message": "Authentication Microservice API", "version": "1.0.0"}
+
+@app.post("/register", response_model=dict)
+async def register(request: RegisterRequest):
+    """Register a new user."""
+    result = register_user(
+        name=request.name,
+        email=request.email,
+        password=request.password,
+        role=request.role or Role.USER
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result["error"])
+    
+    return {
+        "message": "User registered successfully",
+        "user": result["user"]
+    }
 
-@router.post("/login", response_model=schemas.Token)
-def login(form: schemas.UserCreate, db: Session = Depends(db.get_db)):
-    user = db.query(models.User).filter(models.User.username == form.username).first()
-    if not user or not security.verify_password(form.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+@app.post("/login", response_model=TokenResponse)
+async def login(request: LoginRequest):
+    """Login endpoint that returns JWT token."""
+    result = authenticate_user(request.email, request.password)
+    
+    if not result["success"]:
+        raise HTTPException(status_code=401, detail=result["error"])
+    
+    user = result["user"]
+    
+    # Create payload and generate token
+    token_payload = payload()
+    token_payload.user_id = user.id
+    token_payload.role = user.role.value
+    
+    secret_key = os.getenv("JWT_SECRET", "your-secret-key")
+    token = generate_token(token_payload, secret_key)
+    
+    return {
+        "token": token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role.value
+        }
+    }
 
-    jti = str(uuid4())
-    access_token = security.create_token(
-        {"sub": user.username, "role": user.role, "jti": jti},
-        timedelta(minutes=config.settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-    )
-    refresh_token = security.create_token(
-        {"sub": user.username, "jti": str(uuid4())},
-        timedelta(days=config.settings.REFRESH_TOKEN_EXPIRE_DAYS),
-        is_refresh=True
-    )
+@app.get("/me")
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    """Get current authenticated user information."""
+    user = get_user_by_id(current_user["user_id"])
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "role": user.role.value
+    }
 
-    db.add(models.RefreshToken(
-        token=refresh_token,
-        user_id=user.id,
-        expiry=datetime.utcnow() + timedelta(days=config.settings.REFRESH_TOKEN_EXPIRE_DAYS)
-    ))
-    db.commit()
+@app.post("/verify-token")
+async def verify_token_endpoint(authorization: str = Header(None)):
+    """Verify if token is valid."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid token")
+    
+    token = authorization.split(" ")[1]
+    secret_key = os.getenv("JWT_SECRET", "your-secret-key")
+    
+    user_data = verify_token(token, secret_key)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+    return {"valid": True, "user": user_data}
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
-
-@router.post("/refresh", response_model=schemas.Token)
-def refresh_token(token: str, db: Session = Depends(db.get_db)):
-    payload = security.decode_token(token)
-    if not payload or not payload.get("refresh"):
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-    db_token = db.query(models.RefreshToken).filter_by(token=token, revoked=False).first()
-    #if not db_token or db_token.expiry < datetime.utcnow():
-     #   raise HTTPException(status_code=401, detail="Expired or revoked refresh token")
-
-    jti = str(uuid4())
-    new_access = security.create_token(
-        {"sub": payload["sub"], "jti": jti},
-        timedelta(minutes=config.settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    return {"access_token": new_access, "refresh_token": token, "token_type": "bearer"}
-
-@router.post("/logout")
-def logout(token: str, db: Session = Depends(db.get_db)):
-    payload = security.decode_token(token)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    jti = payload.get("jti")
-    exp = payload.get("exp")
-    #utils.blacklist_token(jti, exp)
-    return {"msg": "Logged out"}
+@app.get("/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "healthy"}
