@@ -17,11 +17,15 @@ namespace backend.Data
         public DbSet<AdminModel> Admins { get; set; } // Make sure you have this model class
         //public DbSet<Membership> Memberships { get; set; }
 
-        public DbSet<Queue> Queues { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
+
+        
+        public DbSet<BookQueue> BookQueues { get; set; }
         // --- LIBRARY SYSTEM (NEW) ---
         public DbSet<BookModel> Books { get; set; }
+
         //public DbSet<BorrowRequest> BorrowRequests { get; set; } // The Queue
-//        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
+        //        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
 
         // (This looked like a typo in your snippet, generic object? 
         //  I commented it out unless you have a specific model for it)
@@ -46,6 +50,16 @@ namespace backend.Data
             modelBuilder.Entity<Student>().HasBaseType<UserModel>();
             modelBuilder.Entity<LibrarianModel>().HasBaseType<UserModel>();
             modelBuilder.Entity<AdminModel>().HasBaseType<UserModel>();
+            modelBuilder.Entity<FacultyMember>().HasBaseType<UserModel>();
+
+            modelBuilder.Entity<Membership>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Level)
+                      .HasConversion<string>();
+            });
+
 
             // Membership Config
             
@@ -65,15 +79,24 @@ namespace backend.Data
                       .HasConversion<string>();
             });
 
-            // --- B. BORROW REQUEST (THE QUEUE) ---
-            
+            modelBuilder.Entity<BookQueue>(entity =>
+            {
+                entity.HasKey(e => e.QueueId);
 
-            // --- C. BORROW RECORD (ACTIVE LOANS) ---
-            
-            // Inside ApplicationDbContext.OnModelCreating
-            
+                // One-to-One relationship between UserModel and BookQueue
+                entity.HasOne<UserModel>()
+                      .WithOne()
+                      .HasForeignKey<BookQueue>(bq => bq.QueueId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            
+            modelBuilder.Entity<Membership>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+                entity.Property(e => e.UserId).IsRequired();
+                entity.Property(e => e.Level)
+                      .HasConversion<string>();
+            });
         }
     }
 }

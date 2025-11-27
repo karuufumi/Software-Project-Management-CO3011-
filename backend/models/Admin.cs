@@ -8,7 +8,7 @@ namespace backend.models
     {
         private string AdminCode { get; set; }
 
-        public AdminModel(int id, string name, string email, string adminCode)
+        public AdminModel(string id, string name, string email, string adminCode)
             : base(id, name, email, Role.Admin)
         {
             AdminCode = adminCode;

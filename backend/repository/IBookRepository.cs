@@ -11,11 +11,11 @@ p   */
         
         Task AddBook(BookModel book);
 
-        Task<BookModel?> GetBookById(int id);
-        Task RemoveBook(int id);
+        Task<BookModel?> GetBookById(string id);
+        Task RemoveBook(string id);
         Task UpdateBook(BookModel book);
 
-        Task UpdateStatus(int id);
-        
+        Task UpdateStatus(string id, int status);
+
     } 
 }

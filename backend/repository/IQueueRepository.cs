@@ -12,20 +12,15 @@ namespace backend.repository
         // Define methods for managing the Queue here
         //Task AddToQueue(Queue queueEntry);
 
-        Task AddToQueue(BookModel book, int userId);
-        //Task<Queue?> GetQueueByUserId(int userId);
-        Task Pop(int userId);
+        Task Push(BookModel newbook, string queueId);
+        Task<BookQueue?> GetQueueById(string id);
 
-        Task<BookModel?> Peek(int userId);
+        Task<bool> IsEmpty(string id);
 
-        //Task UpdateQueueEntry(Queue queueEntry);
 
-        
-        Task<Queue?> GetQueueByBookId(int bookId, int userId);
-
-        Task<Queue?> GetQueueByUserId(int userId);
-        Task IsQueueEmpty(int userId);
-
+        Task Pop(string id);
+        Task UpdateQueue(string queueId, BookModel updatedBook);
+        Task ClearQueue(string id);
         
     }
     

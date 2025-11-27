@@ -14,18 +14,19 @@ public enum Role
 
 public abstract class UserModel
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
 
     public Role UserRole { get; set; }
-    
-    public BookModel? BorrowedBook { get; set; }
-    public Queue BorrowList { get; set; } = default!;
+
+    public string? BorrowedBook { get; set; } = "";
+
+    public BookQueue BookQueue { get; set; } = new BookQueue();
 
     public int MembershipPoints { get; set; } = 0;
     
-    public UserModel(int id, string name, string email, Role role)
+    public UserModel(string id, string name, string email, Role role)
     {
         Id = id;
         Name = name;

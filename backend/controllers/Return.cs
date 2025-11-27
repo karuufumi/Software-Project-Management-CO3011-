@@ -10,38 +10,46 @@ namespace backend.controllers
     [Route("api/return/[controller]")]
     public class ReturnController : ControllerBase
     {
+        
+        private readonly IUserRepository<UserModel> _userRepository;
         private readonly IBookRepository _bookRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IQueueRepository _queueRepository;
 
-        public ReturnController(IBookRepository bookRepository, IUserRepository userRepository, IQueueRepository queueRepository)
+        public ReturnController(IUserRepository<UserModel> userRepository, IBookRepository bookRepository, IQueueRepository queueRepository)
         {
-            _bookRepository = bookRepository;
             _userRepository = userRepository;
+            _bookRepository = bookRepository;
             _queueRepository = queueRepository;
         }
 
-        // Implement return logic here
-        [HttpPost("{userId}")]
-        public async Task<IActionResult> ReturnBook(int userId)
+        public async Task ReturnBook(string userId, string bookId)
         {
-            var user = await _userRepository.GetUserById(userId);
+            UserModel? user = await _userRepository.GetUserById(userId);
             if (user == null)
             {
-                return NotFound("User not found");
+                throw new InvalidOperationException("User not found.");
             }
-            var book = user.BorrowedBook;
+
+            if (user.BorrowedBook != bookId)
+            {
+                throw new InvalidOperationException("This book was not borrowed by the user.");
+            }
+
+            BookModel? book = await _bookRepository.GetBookById(bookId);
             if (book == null)
             {
-                return BadRequest("User has no borrowed book to return");
+                throw new InvalidOperationException("Book not found.");
             }
-            // Update book status to Available
-            book.Status = BookStatus.Available;
-            await _bookRepository.UpdateBook(book);
+
+
             user.BorrowedBook = null;
+            user.MembershipPoints += 10;
+
             await _userRepository.UpdateUser(user);
 
-            return Ok("Book returned successfully");
+            book.Status = 0; // Assuming 0 means available
+            await _bookRepository.UpdateBook(book);
         }
-    }
+        
+    } 
 }

@@ -2,39 +2,26 @@
 using backend.models;
 using backend.repository;
 using Microsoft.AspNetCore.Mvc;
-
 //for now, no realtime logic
 namespace backend.controllers
 {
-    
     [ApiController]
     [Route("api/penalty/[controller]")]
     public class PenaltyController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository<UserModel> _userRepository;
+        private readonly IBookRepository _bookRepository;
+        private readonly IQueueRepository _queueRepository;
 
-    public const int PenaltyAmount = 100;
-
-        public PenaltyController(IUserRepository userRepository)
+        public PenaltyController(IUserRepository<UserModel> userRepository, IBookRepository bookRepository, IQueueRepository queueRepository)
         {
             _userRepository = userRepository;
+            _bookRepository = bookRepository;
+            _queueRepository = queueRepository;
         }
 
-        // Implement penalty logic here
-        [HttpPost("{userId}")]
-        public async Task<IActionResult> ApplyPenalty(int userId)
-        {
-            var user = await _userRepository.GetUserById(userId);
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
+        
 
-            user.MembershipPoints += PenaltyAmount;
-            await _userRepository.UpdateUser(user);
-
-            return Ok($"Applied {PenaltyAmount} penalty points to user {user.Name}");
-        }
+        // Implement penalty-related actions here
     }
-    
 }

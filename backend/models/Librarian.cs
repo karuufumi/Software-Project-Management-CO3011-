@@ -7,7 +7,7 @@ namespace backend.models
     {
         public string EmployeeId { get; set; }
 
-        public LibrarianModel(int id, string name, string email, string librarianId)
+        public LibrarianModel(string id, string name, string email, string librarianId)
             : base(id, name, email, Role.Librarian)
         {
             EmployeeId = librarianId;

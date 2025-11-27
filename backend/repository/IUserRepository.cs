@@ -1,19 +1,14 @@
-
 using backend.models;
-
-
 
 namespace backend.repository
 {
-    public interface IUserRepository
+    public interface IUserRepository<T> where T : UserModel
     {
-        
-        Task AddUser(UserModel user);
-
-        Task<UserModel?> GetUserById(int id);
-        Task RemoveUser(int id);
-        Task UpdateUser(UserModel user);
+        Task AddUser(T user);
+        Task<T?> GetUserById(string id);
+        Task<int> GetUserMembership(string userId);
+        Task RemoveUser(string id);
+        Task UpdateUser(T user);
+        Task<T?> UpdateCredit(string userId, int credits);
     }
-
-
 }

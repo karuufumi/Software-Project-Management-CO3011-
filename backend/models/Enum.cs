@@ -21,4 +21,11 @@ namespace backend.models
         Expired,    // They missed the deadline
         Canceled    // User left the line
     }
+
+    public enum MembershipLevel
+    {
+        Standard,
+        Premium,
+        VIP
+    }
 }

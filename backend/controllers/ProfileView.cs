@@ -14,24 +14,6 @@ namespace backend.controllers
     [Route("api/profile/[controller]")]
     public class ProfileViewController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-
-        public ProfileViewController(IUserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
-
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUserProfile(int userId)
-        {
-            var user = await _userRepository.GetUserById(userId);
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
-            var userProfile = new UserProfile(user);
-            return Ok(userProfile);
-        }
+        
     }
 }
