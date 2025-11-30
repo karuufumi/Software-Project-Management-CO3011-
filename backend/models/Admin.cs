@@ -1,17 +1,14 @@
-using backend.models;
-
-
 namespace backend.models 
 {
-    
-    public class AdminModel : UserModel
+    public class Admin : UserModel
     {
-        private string AdminCode { get; set; }
-
-        public AdminModel(string id, string name, string email, string adminCode)
-            : base(id, name, email, Role.Admin)
-        {
-            AdminCode = adminCode;
-        }
+        public string AdminId { get; set; } = string.Empty;
+        
+        public string AccessLevel { get; set; } = "SuperAdmin"; // e.g., "SuperAdmin", "SystemAdmin"
+        
+        public DateTime LastLogin { get; set; }
+        
+        // Admins don't have membership points
+        // They have system-wide permissions
     }
 }

@@ -1,18 +1,18 @@
-
-using backend.models;
-
 namespace backend.models
 {
-
-    public class Student(string id, string name, string email, string studentId) : UserModel(id, name, email, Role.Student)
+    public class Student : UserModel
     {
-        private BookQueue bookQueue = new BookQueue(id);
+        public string StudentId { get; set; } = string.Empty;
         
-        private UInt16 CreditScore { get; set; } = 0;
-        public void increaseCreditScore(int points) => CreditScore += (UInt16)points;
+        public int MembershipPoints { get; set; } = 0;
+        
+        public string Major { get; set; } = string.Empty;
+        
+        public int Year { get; set; }
 
-        private MembershipLevel Membership{ get; set; } = MembershipLevel.Standard;
-        public string StudentId { get; set; } = studentId;
+        public void increaseCreditScore(int points)
+        {
+            MembershipPoints += points;
+        }
     }
-
 }

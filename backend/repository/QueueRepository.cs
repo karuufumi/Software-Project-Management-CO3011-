@@ -1,158 +1,114 @@
+using backend.Data;
 using backend.models;
 using Microsoft.EntityFrameworkCore;
-using backend.repository;
-using backend.Data;
 
 namespace backend.repository
 {
-    
     public class QueueRepository : IQueueRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly DbSet<BookQueue> _bookQueues;
+        private readonly IBookRepository _bookRepository;
 
-        public QueueRepository(ApplicationDbContext context)
+        public QueueRepository(ApplicationDbContext context, IBookRepository bookRepository)
         {
             _context = context;
-            _bookQueues = _context.Set<BookQueue>();
+            _bookRepository = bookRepository;
         }
 
-        public async Task Push(BookModel newbook, string queueId)
+        public async Task Push(string queueId, string bookId)
         {
-            var queue = await _bookQueues.FindAsync(queueId);
-            if (queue != null)
-            {
-                queue.bookList.Add(newbook);
-                _bookQueues.Update(queue);
-                await _context.SaveChangesAsync();
-            }
-            Console.WriteLine("Queue not found.");
-        }
-       
-        public async Task<BookQueue?> GetQueueById(string id)
-        {
-            return await _bookQueues.FindAsync(id);
-        }
-
-        public async Task<bool> IsEmpty(string id)
-        {
-            BookQueue? queue = await _bookQueues.FindAsync(id);
-            if (queue != null)
-            {
-               if (queue.bookList.Count == 0)
-               {
-                    Console.WriteLine("The queue is empty.");
-                    return true;
-               }
-               else
-               {
-                    Console.WriteLine("The queue is not empty.");
-                    return false;
-               }
-            }
-            else
-            {
-                Console.WriteLine("Queue not found.");
-                return false;
-            }
-        }
-
-        public async Task Pop(string id)
-        {
-            if (_bookQueues.Find(id) is BookQueue queue)
-            {
-                if (queue.bookList.Count > 0)
-                {
-                    queue.bookList.RemoveAt(0);
-                    _bookQueues.Update(queue);
-                    _context.SaveChanges();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Queue not found.");
-            }
-        }
-
-       
-
-
-        public async Task UpdateQueue(string queueId, BookModel updatedBook)
-        {
-            var queue = await _bookQueues.FindAsync(queueId);
-            if (queue != null)
-            {
-                var bookIndex = queue.bookList.FindIndex(b => b.BookId == updatedBook.BookId);
-                if (bookIndex != -1)
-                {
-                    queue.bookList[bookIndex] = updatedBook;
-                    _bookQueues.Update(queue);
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    Console.WriteLine("Book not found in the queue.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Queue not found.");
-            }
-        }
-        public async Task ClearQueue(string id)
-        {
-            var queue = await _bookQueues.FindAsync(id);
-            if (queue != null)
-            {
-                queue.bookList.Clear();
-                _bookQueues.Update(queue);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                Console.WriteLine("Queue not found.");
-            }
-        }
-
-        Task<bool> IQueueRepository.IsEmpty(string id)
-        {
-            BookQueue? queue =  _bookQueues.Find(id);
-            if (queue != null)
-            {
-                if (queue.bookList.Count == 0)
-                {
-                      Console.WriteLine("The queue is empty.");
-                      return Task.FromResult(true);
-                }
-                else
-                {
-                      Console.WriteLine("The queue is not empty.");
-                        return Task.FromResult(false);
-                }
-                }
-                else
-                {
-                 Console.WriteLine("Queue not found.");
-                 return Task.FromResult(false);
-            }
-        }
-
-        public async Task<BookQueue?> GetQueue(string queueId)
-        {
-            return await _bookQueues.FindAsync(queueId);
-        }
-
-        public async Task<bool> Contains(string queueId, string bookId)
-        {
-            var queue = await _bookQueues
-                .Include(q => q.bookList)
-                .FirstOrDefaultAsync(q => q.QueueId == queueId);
-
+            var queue = await GetQueueById(queueId);
             if (queue == null)
-                return false;
+            {
+                throw new InvalidOperationException("Queue not found.");
+            }
 
-            return queue.bookList.Any(b => b.BookId == bookId);
-        }
+            var book = await _bookRepository.GetBookById(bookId);
+            if (book == null)
+            {
+                throw new InvalidOperationException("Book not found.");
+            }
+
+            // Check if book is already in queue
+            if (queue.QueuedBooks?.Any(b => b.BookId == bookId) == true)
+            {
+                throw new InvalidOperationException("Book is already in queue.");
+            }
+
+            if (queue.QueuedBooks == null)
+            {
+                queue.QueuedBooks = new List<BookModel>();
+            }
+
+            queue.QueuedBooks.Add(book);
+            await _context.SaveChangesAsync();
         }
 
+        public async Task Pop(string queueId, string bookId)
+        {
+            var queue = await GetQueueById(queueId);
+            if (queue == null)
+            {
+                throw new InvalidOperationException("Queue not found.");
+            }
+
+            var book = queue.QueuedBooks?.FirstOrDefault(b => b.BookId == bookId);
+            if (book == null)
+            {
+                throw new InvalidOperationException("Book not found in queue.");
+            }
+
+            queue.QueuedBooks?.Remove(book);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<BookQueue?> GetQueueById(string userId)
+        {
+            return await _context.BookQueues
+                .Include(q => q.QueuedBooks)
+                .FirstOrDefaultAsync(q => q.UserId == userId);
+        }
+
+        public async Task CreateQueue(string userId)
+        {
+            var existingQueue = await GetQueueById(userId);
+            if (existingQueue != null)
+            {
+                throw new InvalidOperationException("Queue already exists for this user.");
+            }
+
+            var newQueue = new BookQueue
+            {
+                UserId = userId,
+                QueuedBooks = new List<BookModel>()
+            };
+
+            await _context.BookQueues.AddAsync(newQueue);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsEmpty(string queueId)
+        {
+            var queue = await GetQueueById(queueId);
+            return queue?.QueuedBooks?.Count == 0 || queue?.QueuedBooks == null;
+        }
+
+        public async Task ClearQueue(string queueId)
+        {
+            var queue = await GetQueueById(queueId);
+            if (queue == null)
+            {
+                throw new InvalidOperationException("Queue not found.");
+            }
+
+            queue.QueuedBooks?.Clear();
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<BookModel>> GetQueueBooks(string queueId)
+        {
+            var queue = await GetQueueById(queueId);
+            return queue?.QueuedBooks ?? Enumerable.Empty<BookModel>();
+        }
     }
+}

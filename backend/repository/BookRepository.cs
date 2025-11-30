@@ -1,14 +1,11 @@
 using backend.Data;
 using backend.models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-
 
 namespace backend.repository
 {
     public class BookRepository : IBookRepository
     {
-        
         private readonly ApplicationDbContext _context;
 
         public BookRepository(ApplicationDbContext context)
@@ -18,18 +15,25 @@ namespace backend.repository
 
         public async Task AddBook(BookModel book)
         {
-            _context.Books.Add(book);
+            await _context.Books.AddAsync(book);
             await _context.SaveChangesAsync();
         }
 
         public async Task<BookModel?> GetBookById(string id)
         {
-            return await _context.Books.FindAsync(id);
+            return await _context.Books
+                .Include(b => b.BorrowRecords)
+                .FirstOrDefaultAsync(b => b.BookId == id);
+        }
+
+        public async Task<IEnumerable<BookModel>> GetAllBooks()
+        {
+            return await _context.Books.ToListAsync();
         }
 
         public async Task RemoveBook(string id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await GetBookById(id);
             if (book != null)
             {
                 _context.Books.Remove(book);
@@ -43,36 +47,37 @@ namespace backend.repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateStatus(string id, int status)
+        public async Task UpdateAvailability(string bookId, int availableCopies)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await GetBookById(bookId);
             if (book != null)
             {
-                switch(status)
-                {
-                    case 0:
-                        book.Status = BookStatus.Available;
-                        break;
-                    case 1:
-                        book.Status = BookStatus.Borrowed;
-                        break;
-                 
-                    default:
-                        book.Status = BookStatus.Lost;
-                        break;
-                }
-                
-            }
-            else
-            {
-                throw new Exception("Book not found");
+                book.AvailableCopies = availableCopies;
+                await _context.SaveChangesAsync();
             }
         }
 
-        public async Task SaveChanges()
+        public async Task<IEnumerable<BookModel>> SearchBooks(string searchTerm)
         {
-            await _context.SaveChangesAsync();
-            }
-
+            return await _context.Books
+                .Where(b => b.Title.Contains(searchTerm) || 
+                           b.Author.Contains(searchTerm) || 
+                           b.ISBN.Contains(searchTerm))
+                .ToListAsync();
         }
+
+        public async Task<IEnumerable<BookModel>> GetBooksByGenre(string genre)
+        {
+            return await _context.Books
+                .Where(b => b.Genre == genre)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<BookModel>> GetBooksByAuthor(string author)
+        {
+            return await _context.Books
+                .Where(b => b.Author == author)
+                .ToListAsync();
+        }
+    }
 }

@@ -1,37 +1,19 @@
-using backend.models;
+using System.ComponentModel.DataAnnotations;
 
 namespace backend.models
 {
     public class BookQueue
     {
-        /*
-        public required int QueueId { get; set; }          // PK
-
-        // FK to BookModel
-//        public required int BookId { get; set; }           // FK
-
-        public required int UserId { get; set; }
-
-        public List<BookModel> bookList { get; set; } = new List<BookModel>();
-        */
-        public string QueueId { get; set; } = string.Empty;
-
-        public List<BookModel> bookList { get; set; } = new List<BookModel>();
+        [Key]
+        public string QueueId { get; set; } = Guid.NewGuid().ToString();
         
-
-        //Constructor
-
-        public BookQueue()
-        {
-        }
-        public BookQueue(string queueId)
-        {
-            QueueId = queueId;
-        }
-
-
-
+        [Required]
+        public string UserId { get; set; } = string.Empty;
         
-
+        // Navigation property for queued books
+        public ICollection<BookModel>? QueuedBooks { get; set; }
+        
+        // Navigation property to user
+        public UserModel? User { get; set; }
     }
 }

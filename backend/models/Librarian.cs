@@ -1,16 +1,13 @@
-using backend.models;
-
 namespace backend.models 
 {
-    
-    public class LibrarianModel : UserModel
+    public class Librarian : UserModel
     {
-        public string EmployeeId { get; set; }
-
-        public LibrarianModel(string id, string name, string email, string librarianId)
-            : base(id, name, email, Role.Librarian)
-        {
-            EmployeeId = librarianId;
-        }
+        public string EmployeeId { get; set; } = string.Empty;
+        
+        
+        public DateTime HireDate { get; set; } = DateTime.UtcNow;
+        
+        // Librarians don't have membership points
+        // They manage borrowing for others
     }
 }

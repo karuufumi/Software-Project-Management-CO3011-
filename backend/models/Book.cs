@@ -1,47 +1,32 @@
+using System.ComponentModel.DataAnnotations;
 
-using System.Collections.Generic;
 namespace backend.models
 {
     public class BookModel
     {
-        public string BookId { get; set; } = string.Empty;
-
-        public string Title { get; set; } = string.Empty;
-        public string Author { get; set; } = string.Empty;
-        public string ISBN { get; set; } = string.Empty;
-        public Genre BookGenre { get; set; }
-       // public int numberofQueuedUsers { get; set; } = 0;
-
-        public Queue<string> UserQueue { get; set; } = new Queue<string>();
-        public MembershipLevel MembershipLevel { get; set; } = MembershipLevel.Standard;
-        public BookStatus Status { get; set; } = BookStatus.Available;
-
-        public BookModel(
-            string bookId,
-            string title,
-            string author,
-            string isbn,
-            Genre genre
-            ,
-            MembershipLevel membershipLevel
-
-        )
-        {
-            BookId = bookId;
-            Title = title;
-            Author = author;
-            ISBN = isbn;
-            BookGenre = genre;
-            MembershipLevel = membershipLevel;
-
-        }
-        public MembershipLevel GetMembershipLevel()
-        {
-            return MembershipLevel;
-        }
-
-       
+        [Key]
+        public string BookId { get; set; } = Guid.NewGuid().ToString();
         
-
+        [Required]
+        public string Title { get; set; } = string.Empty;
+        
+        public string Author { get; set; } = string.Empty;
+        
+        public string ISBN { get; set; } = string.Empty;
+        
+        public string Genre { get; set; } = string.Empty;
+        
+        public DateTime PublishedDate { get; set; }
+        
+        [Required]
+        public int TotalCopies { get; set; }
+        
+        [Required]
+        public int AvailableCopies { get; set; }
+        
+        public string? Description { get; set; }
+        
+        // Navigation property for borrow records
+        public ICollection<BorrowRecord>? BorrowRecords { get; set; }
     }
 }

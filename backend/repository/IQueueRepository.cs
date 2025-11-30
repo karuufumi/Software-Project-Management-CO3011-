@@ -1,27 +1,28 @@
 using backend.models;
-using Microsoft.EntityFrameworkCore;
-using backend.repository;
-
-
 
 namespace backend.repository
 {
-    
     public interface IQueueRepository
     {
-        // Define methods for managing the Queue here
-        //Task AddToQueue(Queue queueEntry);
-
-        Task Push(BookModel newbook, string queueId);
-        Task<BookQueue?> GetQueueById(string id);
-
-        Task<bool> IsEmpty(string id);
-
-
-        Task Pop(string id);
-        Task UpdateQueue(string queueId, BookModel updatedBook);
-        Task ClearQueue(string id);
+        // Add a book to user's queue
+        Task Push(string queueId, string bookId);
         
+        // Remove a specific book from queue
+        Task Pop(string queueId, string bookId);
+        
+        // Get user's queue
+        Task<BookQueue?> GetQueueById(string userId);
+        
+        // Create queue for new user
+        Task CreateQueue(string userId);
+        
+        // Check if queue is empty
+        Task<bool> IsEmpty(string queueId);
+        
+        // Clear entire queue
+        Task ClearQueue(string queueId);
+        
+        // Get all books in queue
+        Task<IEnumerable<BookModel>> GetQueueBooks(string queueId);
     }
-    
 }
