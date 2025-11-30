@@ -1,6 +1,5 @@
 using backend.Data;
 using backend.models;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.repository

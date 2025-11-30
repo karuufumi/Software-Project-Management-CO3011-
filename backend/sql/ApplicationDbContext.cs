@@ -10,93 +10,73 @@ namespace backend.Data
         {
         }
 
-        // --- USER & ROLES ---
+        // DbSets
+        public DbSet<BookModel> Books { get; set; }
         public DbSet<UserModel> Users { get; set; }
         public DbSet<Student> Students { get; set; }
-        public DbSet<LibrarianModel> Librarians { get; set; }
-        public DbSet<AdminModel> Admins { get; set; } // Make sure you have this model class
-        //public DbSet<Membership> Memberships { get; set; }
-
-        public DbSet<Membership> Memberships { get; set; }
-
-        
+        public DbSet<FacultyMember> FacultyMembers { get; set; }
+        public DbSet<Librarian> Librarians { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<BorrowRecord> BorrowRecords { get; set; }
         public DbSet<BookQueue> BookQueues { get; set; }
-        // --- LIBRARY SYSTEM (NEW) ---
-        public DbSet<BookModel> Books { get; set; }
-
-        //public DbSet<BorrowRequest> BorrowRequests { get; set; } // The Queue
-        //        public DbSet<BorrowRecord> BorrowRecords { get; set; }   // The History/Active Loans
-
-        // (This looked like a typo in your snippet, generic object? 
-        //  I commented it out unless you have a specific model for it)
-        // public object MembershipRequests { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // ==============================
-            // 1. USER HIERARCHY & CONFIG
-            // ==============================
-            modelBuilder.Entity<UserModel>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Email).IsRequired();
-                entity.HasIndex(e => e.Email).IsUnique();
-                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-            });
+            // Configure UserModel inheritance (TPH - Table Per Hierarchy)
+            modelBuilder.Entity<UserModel>()
+                .HasDiscriminator<string>("UserType")
+                .HasValue<Student>("Student")
+                .HasValue<FacultyMember>("Faculty")
+                .HasValue<Librarian>("Librarian")
+                .HasValue<Admin>("Admin");
 
-            // TPH (Table Per Hierarchy) Inheritance
-            modelBuilder.Entity<Student>().HasBaseType<UserModel>();
-            modelBuilder.Entity<LibrarianModel>().HasBaseType<UserModel>();
-            modelBuilder.Entity<AdminModel>().HasBaseType<UserModel>();
-            modelBuilder.Entity<FacultyMember>().HasBaseType<UserModel>();
+            // Configure BorrowRecord relationships
+            modelBuilder.Entity<BorrowRecord>()
+                .HasOne(br => br.User)
+                .WithMany(u => u.BorrowedBooks)
+                .HasForeignKey(br => br.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Membership>(entity =>
-            {
-                entity.HasKey(e => e.UserId);
-                entity.Property(e => e.UserId).IsRequired();
-                entity.Property(e => e.Level)
-                      .HasConversion<string>();
-            });
+            modelBuilder.Entity<BorrowRecord>()
+                .HasOne(br => br.Book)
+                .WithMany(b => b.BorrowRecords)
+                .HasForeignKey(br => br.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure BookQueue relationships
+            modelBuilder.Entity<BookQueue>()
+                .HasOne(q => q.User)
+                .WithOne()
+                .HasForeignKey<BookQueue>(q => q.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Membership Config
-            
-            // ==============================
-            // 2. LIBRARY SYSTEM CONFIG
-            // ==============================
+            modelBuilder.Entity<BookQueue>()
+                .HasMany(q => q.QueuedBooks)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("QueuedBookItems"));
 
-            // --- A. BOOK MODEL ---
-            modelBuilder.Entity<BookModel>(entity =>
-            {
-                entity.HasKey(e => e.BookId);
-                entity.Property(e => e.Title).IsRequired();
-                
-                // Store the Enum as a String (e.g., "Available", "Lost") 
-                // instead of an Integer (0, 1) for easier DB debugging.
-                entity.Property(e => e.Status)
-                      .HasConversion<string>();
-            });
+            // Configure indexes for performance
+            modelBuilder.Entity<BookModel>()
+                .HasIndex(b => b.ISBN)
+                .IsUnique();
 
-            modelBuilder.Entity<BookQueue>(entity =>
-            {
-                entity.HasKey(e => e.QueueId);
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
-                // One-to-One relationship between UserModel and BookQueue
-                entity.HasOne<UserModel>()
-                      .WithOne()
-                      .HasForeignKey<BookQueue>(bq => bq.QueueId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            });
+            modelBuilder.Entity<UserModel>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
 
-            modelBuilder.Entity<Membership>(entity =>
-            {
-                entity.HasKey(e => e.UserId);
-                entity.Property(e => e.UserId).IsRequired();
-                entity.Property(e => e.Level)
-                      .HasConversion<string>();
-            });
+            modelBuilder.Entity<BorrowRecord>()
+                .HasIndex(br => new { br.UserId, br.BookId, br.IsReturned });
+
+            // Configure decimal precision if needed
+            // modelBuilder.Entity<BookModel>()
+            //     .Property(b => b.Price)
+            //     .HasPrecision(18, 2);
         }
     }
 }
