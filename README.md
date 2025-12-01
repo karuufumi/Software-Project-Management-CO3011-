@@ -30,12 +30,13 @@ The project is a full-stack, containerized, multi-language web application desig
 3. System Design Diagrams
 https://drive.google.com/file/d/1KzWkvfCnfZVO2V8e6m8LBMh1p5LihTbV/view?usp=sharing
 (implemented in Sprint 1)
+
 Figma (Low-Fi) Prototype :
 https://www.figma.com/design/XMyyLNbycULmpWsaJKQW0Q/CO3011?node-id=0-1&t=c9WUnjP9DfN6TMNa-1
 (implemented in Sprint 2)
 
 
-4.  Tech Stack
+5.  Tech Stack
 | Category | Technology | Notes |
 | :--- | :--- | :--- |
 | **Front-end** | **React** (Typescript) | Utilizes **Vite** for tooling and build optimization. **implemented in Sprint 3** |
