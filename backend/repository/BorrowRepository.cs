@@ -144,12 +144,21 @@ namespace backend.repository
             await _userRepository.UpdateUser(user);
         }
 
+       
+
         public async Task<IEnumerable<BorrowRecord>> GetPendingRequests()
         {
-            // This would need to query all users and filter for pending requests
-            // Implementation depends on your data access pattern
-            throw new NotImplementedException("Implement based on your data access strategy");
+            // Query all users and get their pending borrow requests
+            var allUsers = await _userRepository.GetAllUsers();
+            var pendingRequests = allUsers
+                .SelectMany(u => u.BorrowedBooks ?? Enumerable.Empty<BorrowRecord>())
+                .Where(b => !b.IsReturned && b.DueDate == null)
+                .ToList();
+            
+            return await Task.FromResult(pendingRequests);
         }
+
+// ...existing code...
 
         public async Task<IEnumerable<BorrowRecord>> GetUserActiveBorrows(string userId)
         {

@@ -1,25 +1,26 @@
-
-using backend.models;
-
+using System.ComponentModel.DataAnnotations;
 
 namespace backend.models
 {
     public class Membership
     {
+        [Key]
+        public string MembershipId { get; set; } = Guid.NewGuid().ToString();
         
-
-        public string UserId { get; set; }
+        [Required]
+        public string UserId { get; set; } = string.Empty;
         
+        [Required]
+        public int Points { get; set; } = 0;
+        
+        [Required]
         public DateTime ExpiryDate { get; set; }
-
-        public MembershipLevel Level { get; set; }
-
-        public Membership(string userId, DateTime expiryDate, MembershipLevel level)
-        {
-            UserId = userId;
-            ExpiryDate = expiryDate;
-            Level = level;
-        }
-
+        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public DateTime? LastUpdated { get; set; }
+        
+        // Navigation property
+        public UserModel? User { get; set; }
     }
 }

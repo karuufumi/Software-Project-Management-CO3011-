@@ -19,6 +19,7 @@ namespace backend.Data
         public DbSet<Admin> Admins { get; set; }
         public DbSet<BorrowRecord> BorrowRecords { get; set; }
         public DbSet<BookQueue> BookQueues { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +58,13 @@ namespace backend.Data
                 .WithMany()
                 .UsingEntity(j => j.ToTable("QueuedBookItems"));
 
+            // Configure Membership relationships
+            modelBuilder.Entity<Membership>()
+                .HasOne(m => m.User)
+                .WithOne()
+                .HasForeignKey<Membership>(m => m.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // Configure indexes for performance
             modelBuilder.Entity<BookModel>()
                 .HasIndex(b => b.ISBN)
@@ -73,10 +81,9 @@ namespace backend.Data
             modelBuilder.Entity<BorrowRecord>()
                 .HasIndex(br => new { br.UserId, br.BookId, br.IsReturned });
 
-            // Configure decimal precision if needed
-            // modelBuilder.Entity<BookModel>()
-            //     .Property(b => b.Price)
-            //     .HasPrecision(18, 2);
+            modelBuilder.Entity<Membership>()
+                .HasIndex(m => m.UserId)
+                .IsUnique();
         }
     }
 }

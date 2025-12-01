@@ -2,36 +2,28 @@
 using backend.repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend
-{
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-            // Add services
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IBookRepository, BookRepository>();
-            builder.Services.AddScoped<IQueueRepository, QueueRepository>();
-            builder.Services.AddControllers();
+// Add DbContext with SQLite
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            var app = builder.Build();
+// Register repositories with generic type argument
+builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>));
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
+builder.Services.AddScoped<IQueueRepository, QueueRepository>();
+builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 
-            // Auto-create database
-            using (var scope = app.Services.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                await context.Database.EnsureCreatedAsync();
-            }
+var app = builder.Build();
 
-            app.UseRouting();
-            app.MapControllers();
+// Configure the HTTP request pipeline.
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
 
-            app.Run();
-        }
-    }
-}
+app.Run();
