@@ -4,6 +4,7 @@ This repository contains the final submission for the CO3011 Software Project Ma
 The project is a full-stack, containerized, multi-language web application designed to support university library operations, including registration, authentication, member management, book management, borrowing, returning, and reporting. Development followed the Scrum framework over 5 sprints, with rotating roles (PO, SM, BA, Dev), backlog refinement, requirement injections, sprint reviews, and retrospectives.
 
 2. Key Features (MVP Scope)
+   
 2.1. Authentication & User Management:
    
 - Student / staff registration
