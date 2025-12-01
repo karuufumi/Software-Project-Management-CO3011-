@@ -5,22 +5,29 @@ The project is a full-stack, containerized, multi-language web application desig
 
 2. Key Features (MVP Scope)
 2.1. Authentication & User Management:
+   
 - Student / staff registration
 - Login and session management
 - JWT-based authentication
 - Password confirmation & validation
 - Form validation test suite (40+ automated cases)
-2.2. Library Operations
+  
+2.2. Library Operations:
+  
 - Book search
 - Book management (add, update, delete)
 - Borrow and return workflow
 - Overdue detection
 - Member point system
+  
 2.3. Reporting & Logs
+
 - Borrow history
 - Overdue report
 - Activity logs stored in NoSQL (MongoDB Atlas)
+  
 2.4. Development Support
+
 - Automated test cases (UI + API)
 - Dockerized services
 - Multiple sprint increments
