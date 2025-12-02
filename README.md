@@ -1,4 +1,4 @@
-***1. Project Overview***
+**1. Project Overview**  
          This repository contains the final submission for the CO3011 Software Project Management module. The project is a full-stack, containerized, multi-language web application designed to support university library operations, including registration, authentication, member management, book management, borrowing, returning, and reporting. Development followed the Scrum framework over 5 sprints, with rotating roles (PO, SM, BA, Dev), backlog refinement, requirement injections, sprint reviews, and retrospectives.
          
 
@@ -34,32 +34,29 @@
    - Low-fi prototype in Figma
    - System design diagrams (Sprint 1)
    
-***3. System Design Diagrams***
-      https://drive.google.com/file/d/1KzWkvfCnfZVO2V8e6m8LBMh1p5LihTbV/view?usp=sharing
-      (implemented in Sprint 1)
-      
-      Figma (Low-Fi) Prototype :
-      https://www.figma.com/design/XMyyLNbycULmpWsaJKQW0Q/CO3011?node-id=0-1&t=c9WUnjP9DfN6TMNa-1
-      (implemented in Sprint 2)
+***3. System Design Diagrams***  
+https://drive.google.com/file/d/1KzWkvfCnfZVO2V8e6m8LBMh1p5LihTbV/view?usp=sharing (implemented in Sprint 1)    
+Figma (Low-Fi) Prototype :  
+https://www.figma.com/design/XMyyLNbycULmpWsaJKQW0Q/CO3011?node-id=0-1&t=c9WUnjP9DfN6TMNa-1(implemented in Sprint 2)     
    
    
 ***4.  Tech Stack***
-      | Category | Technology | Notes |
-      | :--- | :--- | :--- |
-      | **Front-end** | **React** (Typescript) | Utilizes **Vite** for tooling and build optimization. **implemented in Sprint 3** |
-      | **Back-end** | **.NET Core 9.0** | Core API development framework. **to be implemented in Sprint 4** |
-      | **Authentication** | **FastAPI** | Used specifically for managing authentication services. **implemented in Sprint 2** |
-      | **Database (NoSQL)** | **Atlas MongoDB** | Using Atlas cloud solution. **to be implemented in Sprint 5** |
-      | **Database (SQL)** | **PostgreSQL** | Relational data storage. **to be implemented in Sprint 5** |
-      | **Deployment** | **AWS** + **Docker** | Deployment target is **AWS**. **Docker** containerization is scheduled (implemented in Sprint 4) |
+      | Category | Technology | Notes |  
+      | :--- | :--- | :--- |  
+      | **Front-end** | **React** (Typescript) | Utilizes **Vite** for tooling and build optimization. **implemented in Sprint 3** |  
+      | **Back-end** | **.NET Core 9.0** | Core API development framework. **to be implemented in Sprint 4** |  
+      | **Authentication** | **FastAPI** | Used specifically for managing authentication services. **implemented in Sprint 2** |  
+      | **Database (NoSQL)** | **Atlas MongoDB** | Using Atlas cloud solution. **to be implemented in Sprint 5** |  
+      | **Database (SQL)** | **PostgreSQL** | Relational data storage. **to be implemented in Sprint 5** |  
+      | **Deployment** | **AWS** + **Docker** | Deployment target is **AWS**. **Docker** containerization is scheduled (implemented in Sprint 4) |  
       
       
       ## Testing Strategy
       
-      | Category | Tools | Status |
-      | :--- | :--- | :--- |
-      | **API Testing** | **Postman** | Automated testing **to be implemented in Sprint 4**. |
-      | **UI/E2E Testing** | **Selenium** | Automated testing **to be implemented in Sprint 5**. |
+      | Category | Tools | Status |  
+      | :--- | :--- | :--- |  
+      | **API Testing** | **Postman** | Automated testing **to be implemented in Sprint 4**. |  
+      | **UI/E2E Testing** | **Selenium** | Automated testing **to be implemented in Sprint 5**. |  
    
 **5. Manual Execution**
    **5.1. Backend (.NET):**
