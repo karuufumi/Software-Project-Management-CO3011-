@@ -1,40 +1,32 @@
 # Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /src
+WORKDIR /app
 
-# Copy csproj and restore dependencies
-COPY ["backend.csproj", "./"]
-RUN dotnet restore "backend.csproj"
+# Copy project files and restore
+COPY *.csproj ./
+RUN dotnet restore
 
-# Copy everything else and build
-COPY . .
-RUN dotnet build "backend.csproj" -c Release -o /app/build
+# Copy everything else and publish
+COPY . ./
+RUN dotnet publish -c Release -o out
 
-# Stage 2: Publish
-FROM build AS publish
-RUN dotnet publish "backend.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-# Stage 3: Runtime
+# Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup --system --gid 1000 appuser \
-    && adduser --system --uid 1000 --ingroup appuser appuser
-
 # Copy published files
-COPY --from=publish /app/publish .
+COPY --from=build /app/out .
 
-# Create data directory for SQLite with proper permissions
-RUN mkdir -p /app/data && chown -R appuser:appuser /app
-
-# Switch to non-root user
-USER appuser
-
+# Expose port
 EXPOSE 5000
 
+# Set environment variables
 ENV ASPNETCORE_URLS=http://+:5000
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ConnectionStrings__DefaultConnection="Data Source=/app/data/library.db"
 
+# Run as non-root user (optional - removes the warning)
+# Create app directory and set permissions
+RUN mkdir -p /app/data && chmod 777 /app/data
+
+# Run the application
 ENTRYPOINT ["dotnet", "backend.dll"]

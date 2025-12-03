@@ -1,6 +1,10 @@
 #!/bin/bash
 
 echo "🚀 Starting Library Management API..."
+
+# Create data directory if it doesn't exist
+mkdir -p ./data
+
 docker-compose up -d
 
 echo ""
