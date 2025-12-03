@@ -62,10 +62,6 @@ def generate_verification_code(length: int = 6) -> str:
     return ''.join(random.choices(string.digits, k=length))
 
 
-
-
-    
-
 def authenticate_user(email: str, password: str) -> Dict[str, Any]:
     """Authenticates user and returns user data if valid."""
     

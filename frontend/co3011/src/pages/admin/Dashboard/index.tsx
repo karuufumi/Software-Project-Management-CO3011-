@@ -1,9 +1,13 @@
+import { AnimatePresence } from "framer-motion";
 import { Calendar, Clock } from "lucide-react";
 
 export function AdminDashboard() {
   const today = new Date();
+  
+
   return (
     <>
+      <AnimatePresence>
       <h2
         style={{
           fontWeight: 600,
@@ -14,6 +18,7 @@ export function AdminDashboard() {
       >
         Dashboard
       </h2>
+
 
       <div
         style={{
@@ -30,6 +35,9 @@ export function AdminDashboard() {
           <Clock /> {today.getHours()}:{today.getMinutes()}
         </div>
       </div>
+        </AnimatePresence>
+
     </>
   );
+
 }
