@@ -1,3 +1,4 @@
+/Users/karlpum/Github/Software-Project-Management-CO3011-/backend/bin/Debug/net9.0/appsettings.Development.json
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/bin/Debug/net9.0/appsettings.json
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/bin/Debug/net9.0/backend.staticwebassets.endpoints.json
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/bin/Debug/net9.0/backend
@@ -146,4 +147,3 @@
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/obj/Debug/net9.0/backend.pdb
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/obj/Debug/net9.0/backend.genruntimeconfig.cache
 /Users/karlpum/Github/Software-Project-Management-CO3011-/backend/obj/Debug/net9.0/ref/backend.dll
-/Users/karlpum/Github/Software-Project-Management-CO3011-/backend/bin/Debug/net9.0/appsettings.Development.json
