@@ -105,14 +105,14 @@ app.MapGet("/", () => Results.Content(@"
 </head>
 <body>
     <div class='container'>
-        <div class='status'>✅ Status: Running</div>
-        <h1>🎉 Library Management System</h1>
+        <div class='status'> Status: Running</div>
+        <h1>Library Management System</h1>
         <p>API Version 1.0.0</p>
         <p>Backend is successfully deployed and running!</p>
         <div class='links'>
-            <a href='/swagger'>📖 API Documentation</a>
-            <a href='/api/book'>📚 View Books</a>
-            <a href='/api/dashboard/stats'>📊 Dashboard</a>
+            <a href='/swagger'> API Documentation</a>
+            <a href='/api/book'> View Books</a>
+            <a href='/api/dashboard/stats'> Dashboard</a>
         </div>
     </div>
 </body>
