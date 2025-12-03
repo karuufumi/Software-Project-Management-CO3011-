@@ -218,7 +218,7 @@ const BookDetailContent: React.FC<{ book: BookDetail }> = ({ book }) => {
 const LibrarianBookDetailx: React.FC = () => {
   return (
   <iframe 
-    src="https://smiling-orange-s2c4oybaq3.edgeone.dev" 
+    src="https://resident-scarlet-hvcaoutlnh.edgeone.dev" 
     width="100%" 
     height="100%" 
     title="Library Dashboard"
