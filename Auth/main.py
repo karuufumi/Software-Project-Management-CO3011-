@@ -1,28 +1,39 @@
-from db import get_conn, get_cursor, close_conn, close_cursor
+from db import init_mongodb, close_mongo_connection
 import uvicorn
+import os
+from dotenv import load_dotenv
+import atexit
 
-def init_database():
-    conn = get_conn("auth.db")
-    cursor = get_cursor(conn)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            hashedpwd TEXT NOT NULL,
-            role TEXT NOT NULL
-        )
-    """)
-    
-    conn.commit()
-    close_cursor(cursor)
-    close_conn(conn)
+# Load environment variables
+load_dotenv()
 
 if __name__ == "__main__":
-    # Initialize database
-    init_database()
-    print("Database initialized successfully!")
+    # Initialize MongoDB
+    try:
+        init_mongodb()
+        print("MongoDB initialized successfully!")
+    except Exception as e:
+        print(f"Failed to initialize MongoDB: {e}")
+        exit(1)
+    
+    # Register cleanup function
+    atexit.register(close_mongo_connection)
+    
+    # Validate JWT_SECRET
+    jwt_secret = os.getenv("JWT_SECRET")
+    if not jwt_secret or jwt_secret == "your-secret-key":
+        print("WARNING: Using default JWT_SECRET. Set JWT_SECRET environment variable!")
+    
+    # Get configuration from environment
+    host = os.getenv("APP_HOST", "0.0.0.0")
+    port = int(os.getenv("APP_PORT", "8000"))
     
     # Run FastAPI app
-    uvicorn.run("routes:app", host="127.0.0.1", port=8020, reload=True)
+    print(f"Starting server on {host}:{port}")
+    uvicorn.run(
+        "routes:app",
+        host=host,
+        port=port,
+        reload=False,
+        log_level="info"
+    )
