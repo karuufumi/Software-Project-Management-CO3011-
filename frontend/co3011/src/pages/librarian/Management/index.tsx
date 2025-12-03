@@ -34,6 +34,30 @@ export default function LBookDetailx({
   imageUrl,
   onAccept,
   onReject,
+}: BookDetailProps){
+
+return (
+  <iframe 
+    src="doc.html" 
+    width="100%" 
+    height="100%" 
+    title="Library Dashboard"
+></iframe>
+)
+}
+
+export function LBookDetaily({
+  title,
+  author,
+  year,
+  publisher,
+  genre,
+  description,
+  copies,
+  rarity,
+  imageUrl,
+  onAccept,
+  onReject,
 }: BookDetailProps) {
   return (
     <div className="flex flex-col items-center w-full min-h-screen bg-gray-50 p-6">
