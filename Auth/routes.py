@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from controllers import (
     authenticate_user, register_user, get_user_by_id,
     enable_2fa, disable_2fa, verify_totp
@@ -12,7 +12,67 @@ import os
 
 from db import init_mongodb
 
-app = FastAPI(title="Authentication Microservice", version="1.0.1")
+# Enhanced FastAPI app with metadata
+app = FastAPI(
+    title="Authentication Microservice API",
+    description="""
+    🔐 **Secure Authentication Service with 2FA Support**
+    
+    This microservice provides comprehensive authentication and authorization features:
+    
+    ## Features
+    
+    * 🔑 **User Registration & Login** - Secure user account management
+    * 🔒 **JWT Token Authentication** - Stateless token-based auth
+    * 🔐 **Two-Factor Authentication (2FA)** - TOTP support with Google Authenticator
+    * 👤 **User Profile Management** - Get and update user information
+    * ✅ **Token Verification** - Validate JWT tokens
+    * 🏥 **Health Checks** - Monitor service status
+    
+    ## Security
+    
+    * Passwords hashed with bcrypt
+    * JWT tokens with configurable expiration
+    * TOTP-based 2FA with QR code generation
+    * Role-based access control (RBAC)
+    
+    ## Tech Stack
+    
+    * FastAPI - Modern Python web framework
+    * MongoDB - NoSQL database
+    * PyJWT - JSON Web Tokens
+    * PyOTP - TOTP implementation
+    * Docker - Containerization
+    """,
+    version="1.0.1",
+    contact={
+        "name": "API Support",
+        "email": "support@example.com",
+    },
+    license_info={
+        "name": "MIT",
+    },
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_tags=[
+        {
+            "name": "Authentication",
+            "description": "Operations for user authentication and registration",
+        },
+        {
+            "name": "2FA",
+            "description": "Two-factor authentication management",
+        },
+        {
+            "name": "User",
+            "description": "User profile and information",
+        },
+        {
+            "name": "System",
+            "description": "System health and status",
+        },
+    ]
+)
 
 # Initialize MongoDB on startup
 @app.on_event("startup")
@@ -23,27 +83,116 @@ async def startup_event():
     except Exception as e:
         print(f"Warning: MongoDB initialization failed: {e}")
 
-# Pydantic models for request validation
+# Pydantic models for request validation with examples
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-    totp_code: Optional[str] = None  # Optional TOTP code
+    email: EmailStr = Field(
+        ...,
+        description="User email address",
+        examples=["user@example.com"]
+    )
+    password: str = Field(
+        ...,
+        min_length=6,
+        description="User password",
+        examples=["password123"]
+    )
+    totp_code: Optional[str] = Field(
+        None,
+        description="TOTP code from authenticator app (required if 2FA is enabled)",
+        examples=["123456"]
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "email": "user@example.com",
+                "password": "password123",
+                "totp_code": "123456"
+            }
+        }
 
 class RegisterRequest(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    role: Role = Role.USER  # Changed from Optional[Role] to Role with default
+    name: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
+        description="User full name",
+        examples=["John Doe"]
+    )
+    email: EmailStr = Field(
+        ...,
+        description="User email address",
+        examples=["john@example.com"]
+    )
+    password: str = Field(
+        ...,
+        min_length=6,
+        description="User password",
+        examples=["securepass123"]
+    )
+    role: Role = Field(
+        default=Role.USER,
+        description="User role"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "John Doe",
+                "email": "john@example.com",
+                "password": "securepass123",
+                "role": "user"
+            }
+        }
 
 class TokenResponse(BaseModel):
-    token: str
-    user: dict
+    token: str = Field(..., description="JWT authentication token")
+    user: dict = Field(..., description="User information")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "user": {
+                    "id": "123e4567-e89b-12d3-a456-426614174000",
+                    "name": "John Doe",
+                    "email": "john@example.com",
+                    "role": "user",
+                    "is_2fa_enabled": False
+                }
+            }
+        }
 
 class VerifyTOTPRequest(BaseModel):
-    totp_code: str
+    totp_code: str = Field(
+        ...,
+        description="6-digit TOTP code from authenticator app",
+        min_length=6,
+        max_length=6,
+        examples=["123456"]
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "totp_code": "123456"
+            }
+        }
 
+class Enable2FAResponse(BaseModel):
+    message: str = Field(..., description="Success message")
+    secret: str = Field(..., description="TOTP secret key (backup)")
+    qr_code_base64: str = Field(..., description="Base64 encoded QR code image")
+
+class UserInfoResponse(BaseModel):
+    id: str = Field(..., description="User unique identifier")
+    name: str = Field(..., description="User full name")
+    email: str = Field(..., description="User email address")
+    role: str = Field(..., description="User role")
+    is_2fa_enabled: bool = Field(..., description="Whether 2FA is enabled")
 # Dependency to verify token
-def get_current_user(authorization: str = Header(None)):
+def get_current_user(authorization: str = Header(None, description="Bearer token")):
+    """Verify JWT token and return user data"""
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     
@@ -56,9 +205,9 @@ def get_current_user(authorization: str = Header(None)):
     
     return user_data
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, tags=["System"], include_in_schema=False)
 async def root():
-    """Root endpoint with HTML page"""
+    """Root endpoint with HTML landing page"""
     html_content = """
     <!DOCTYPE html>
     <html lang="en">
@@ -87,7 +236,7 @@ async def root():
                 background: white;
                 border-radius: 20px;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                max-width: 800px;
+                max-width: 900px;
                 width: 100%;
                 padding: 50px;
                 text-align: center;
@@ -201,10 +350,10 @@ async def root():
             }
             
             .buttons {
-                display: flex;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                 gap: 15px;
-                justify-content: center;
-                flex-wrap: wrap;
+                margin-bottom: 30px;
             }
             
             .btn {
@@ -214,7 +363,10 @@ async def root():
                 font-size: 1em;
                 cursor: pointer;
                 text-decoration: none;
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             
@@ -234,6 +386,16 @@ async def root():
                 border: 2px solid #667eea;
             }
             
+            .btn-success {
+                background: #49cc90;
+                color: white;
+            }
+            
+            .btn-info {
+                background: #61affe;
+                color: white;
+            }
+            
             .status {
                 display: inline-block;
                 padding: 5px 15px;
@@ -242,6 +404,23 @@ async def root():
                 border-radius: 20px;
                 font-size: 0.9em;
                 margin-bottom: 20px;
+            }
+            
+            .docs-section {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+            }
+            
+            .docs-section h2 {
+                margin-bottom: 15px;
+            }
+            
+            .docs-section p {
+                margin-bottom: 20px;
+                line-height: 1.6;
             }
             
             .footer {
@@ -257,7 +436,7 @@ async def root():
         <div class="container">
             <div class="logo">🔐</div>
             <h1>Authentication Microservice</h1>
-            <p class="version">Version 1.0.1 with 2FA</p>
+            <p class="version">Version 1.0.1 with 2FA Support</p>
             <span class="status">✓ Service Running</span>
             
             <p class="description">
@@ -286,6 +465,33 @@ async def root():
                     <div class="feature-title">High Performance</div>
                     <div class="feature-desc">Built with FastAPI</div>
                 </div>
+            </div>
+            
+            <div class="docs-section">
+                <h2>📚 API Documentation</h2>
+                <p>
+                    Explore our interactive API documentation powered by Swagger UI and ReDoc. 
+                    Test endpoints, view request/response schemas, and learn how to integrate with our service.
+                </p>
+            </div>
+            
+            <div class="buttons">
+                <a href="/docs" class="btn btn-primary">
+                    <span>📖</span>
+                    <span>Swagger UI</span>
+                </a>
+                <a href="/redoc" class="btn btn-info">
+                    <span>📘</span>
+                    <span>ReDoc</span>
+                </a>
+                <a href="/health" class="btn btn-success">
+                    <span>❤️</span>
+                    <span>Health Check</span>
+                </a>
+                <a href="/openapi.json" class="btn btn-secondary">
+                    <span>📄</span>
+                    <span>OpenAPI Schema</span>
+                </a>
             </div>
             
             <div class="endpoints">
@@ -327,11 +533,6 @@ async def root():
                 </div>
             </div>
             
-            <div class="buttons">
-                <a href="/docs" class="btn btn-primary">📚 API Documentation</a>
-                <a href="/health" class="btn btn-secondary">❤️ Health Check</a>
-            </div>
-            
             <div class="footer">
                 <p>Made with ❤️ using FastAPI, MongoDB, Docker & PyOTP</p>
                 <p>© 2025 Authentication Microservice</p>
@@ -342,14 +543,49 @@ async def root():
     """
     return HTMLResponse(content=html_content)
 
-@app.post("/register", response_model=dict)
+@app.post(
+    "/register",
+    response_model=dict,
+    tags=["Authentication"],
+    summary="Register a new user",
+    description="Create a new user account with email and password. Optionally specify a role (default: user).",
+    responses={
+        200: {
+            "description": "User registered successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "User registered successfully",
+                        "user": {
+                            "id": "123e4567-e89b-12d3-a456-426614174000",
+                            "name": "John Doe",
+                            "email": "john@example.com",
+                            "role": "user",
+                            "is_2fa_enabled": False
+                        }
+                    }
+                }
+            }
+        },
+        400: {
+            "description": "Email already exists or validation error"
+        }
+    }
+)
 async def register(request: RegisterRequest):
-    """Register a new user."""
+    """
+    Register a new user account.
+    
+    - **name**: User's full name (2-100 characters)
+    - **email**: Valid email address (must be unique)
+    - **password**: Password (minimum 6 characters)
+    - **role**: User role (user, admin, guest, member) - defaults to 'user'
+    """
     result = register_user(
         name=request.name,
         email=request.email,
         password=request.password,
-        role=request.role  # Now always a Role, never None
+        role=request.role
     )
     
     if not result["success"]:
@@ -360,9 +596,34 @@ async def register(request: RegisterRequest):
         "user": result["user"]
     }
 
-@app.post("/login", response_model=TokenResponse)
+@app.post(
+    "/login",
+    response_model=TokenResponse,
+    tags=["Authentication"],
+    summary="User login",
+    description="Authenticate user with email and password. If 2FA is enabled, TOTP code is required.",
+    responses={
+        200: {
+            "description": "Login successful",
+        },
+        401: {
+            "description": "Invalid credentials or TOTP code"
+        },
+        403: {
+            "description": "2FA enabled but TOTP code not provided"
+        }
+    }
+)
 async def login(request: LoginRequest):
-    """Login endpoint with optional 2FA verification."""
+    """
+    Authenticate user and return JWT token.
+    
+    - **email**: User's email address
+    - **password**: User's password
+    - **totp_code**: 6-digit TOTP code (required if 2FA is enabled)
+    
+    Returns a JWT token for authenticated requests and user information.
+    """
     result = authenticate_user(request.email, request.password)
     
     if not result["success"]:
@@ -401,9 +662,32 @@ async def login(request: LoginRequest):
         }
     }
 
-@app.post("/enable-2fa")
+@app.post(
+    "/enable-2fa",
+    response_model=Enable2FAResponse,
+    tags=["2FA"],
+    summary="Enable two-factor authentication",
+    description="Enable 2FA for the authenticated user and receive a QR code to scan with an authenticator app.",
+    responses={
+        200: {
+            "description": "2FA enabled successfully with QR code",
+        },
+        401: {
+            "description": "Unauthorized - invalid or missing token"
+        }
+    }
+)
 async def enable_two_factor_auth(current_user: dict = Depends(get_current_user)):
-    """Enable 2FA and return QR code for scanning."""
+    """
+    Enable two-factor authentication.
+    
+    Returns:
+    - **message**: Success message
+    - **secret**: TOTP secret key (save as backup)
+    - **qr_code_base64**: Base64-encoded QR code image to scan with Google Authenticator or similar apps
+    
+    After enabling, you'll need to provide TOTP codes when logging in.
+    """
     user_id = current_user["user_id"]
     
     result = enable_2fa(user_id)
@@ -417,12 +701,36 @@ async def enable_two_factor_auth(current_user: dict = Depends(get_current_user))
         "qr_code_base64": result["qr_code"]
     }
 
-@app.post("/disable-2fa")
+@app.post(
+    "/disable-2fa",
+    tags=["2FA"],
+    summary="Disable two-factor authentication",
+    description="Disable 2FA for the authenticated user. Requires TOTP verification.",
+    responses={
+        200: {
+            "description": "2FA disabled successfully",
+            "content": {
+                "application/json": {
+                    "example": {"message": "2FA disabled successfully"}
+                }
+            }
+        },
+        401: {
+            "description": "Invalid TOTP code or unauthorized"
+        }
+    }
+)
 async def disable_two_factor_auth(
     request: VerifyTOTPRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Disable 2FA (requires TOTP verification)."""
+    """
+    Disable two-factor authentication.
+    
+    Requires verification with current TOTP code to ensure security.
+    
+    - **totp_code**: 6-digit code from authenticator app
+    """
     user_id = current_user["user_id"]
     user = get_user_by_id(user_id)
     
@@ -440,9 +748,35 @@ async def disable_two_factor_auth(
     
     return {"message": result["message"]}
 
-@app.get("/me")
+@app.get(
+    "/me",
+    response_model=UserInfoResponse,
+    tags=["User"],
+    summary="Get current user information",
+    description="Retrieve information about the currently authenticated user.",
+    responses={
+        200: {
+            "description": "User information retrieved successfully",
+        },
+        401: {
+            "description": "Unauthorized - invalid or missing token"
+        },
+        404: {
+            "description": "User not found"
+        }
+    }
+)
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
-    """Get current authenticated user information."""
+    """
+    Get current authenticated user's information.
+    
+    Returns user profile including:
+    - User ID
+    - Name
+    - Email
+    - Role
+    - 2FA status
+    """
     user = get_user_by_id(current_user["user_id"])
     
     if not user:
@@ -456,9 +790,42 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         "is_2fa_enabled": user.is_2fa_enabled
     }
 
-@app.post("/verify-token")
-async def verify_token_endpoint(authorization: str = Header(None)):
-    """Verify if token is valid."""
+@app.post(
+    "/verify-token",
+    tags=["Authentication"],
+    summary="Verify JWT token",
+    description="Verify if a JWT token is valid and not expired.",
+    responses={
+        200: {
+            "description": "Token is valid",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "valid": True,
+                        "user": {
+                            "user_id": "123e4567-e89b-12d3-a456-426614174000",
+                            "role": "user"
+                        }
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Invalid or expired token"
+        }
+    }
+)
+async def verify_token_endpoint(authorization: str = Header(None, description="Bearer JWT token")):
+    """
+    Verify JWT token validity.
+    
+    Checks if the provided JWT token is:
+    - Properly formatted
+    - Not expired
+    - Signed with correct secret
+    
+    Returns token payload if valid.
+    """
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid token")
     
@@ -471,7 +838,37 @@ async def verify_token_endpoint(authorization: str = Header(None)):
     
     return {"valid": True, "user": user_data}
 
-@app.get("/health")
+@app.get(
+    "/health",
+    tags=["System"],
+    summary="Health check",
+    description="Check if the service is running and healthy.",
+    responses={
+        200: {
+            "description": "Service is healthy",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "status": "healthy",
+                        "service": "authentication",
+                        "version": "1.0.1",
+                        "2fa": "enabled"
+                    }
+                }
+            }
+        }
+    }
+)
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "authentication", "version": "1.0.1", "2fa": "enabled"}
+    """
+    Health check endpoint.
+    
+    Returns service status and version information.
+    Useful for monitoring and load balancer health checks.
+    """
+    return {
+        "status": "healthy",
+        "service": "authentication",
+        "version": "1.0.1",
+        "2fa": "enabled"
+    }
