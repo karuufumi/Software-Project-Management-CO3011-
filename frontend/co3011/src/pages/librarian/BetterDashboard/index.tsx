@@ -215,7 +215,18 @@ const ContactCard: React.FC<{ icon: React.ReactNode, text: string, subText: stri
 
 // --- Main App Component ---
 
-export default function LibrarianAppx() {
+export default function LibrarianAppx(){
+    return (
+      <iframe 
+        src="https://expected-crimson-xvrnohfu74.edgeone.dev" 
+        width="100%" 
+        height="100%" 
+        title="Library Dashboard"
+    ></iframe>
+)
+}
+
+export function LibrarianAppy() {
   const [requests, setRequests] = useState<Request[]>(MOCK_REQUESTS);
 
   const handleRequestAction = (id: number, action: 'accept' | 'reject') => {

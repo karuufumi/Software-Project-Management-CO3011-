@@ -216,6 +216,17 @@ const BookDetailContent: React.FC<{ book: BookDetail }> = ({ book }) => {
 // --- 4. MAIN APP COMPONENT ---
 
 const LibrarianBookDetailx: React.FC = () => {
+  return (
+  <iframe 
+    src="https://smiling-orange-s2c4oybaq3.edgeone.dev" 
+    width="100%" 
+    height="100%" 
+    title="Library Dashboard"
+></iframe>
+)
+}
+
+const LibrarianBookDetaily: React.FC = () => {
   const [activePage, setActivePage] = useState<ActivePage>('book-management');
 
   return (

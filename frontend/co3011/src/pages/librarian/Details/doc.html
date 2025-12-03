@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK Library Dashboard</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to ensure font and smooth transitions */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for chart bars for better visual effect */
+        .chart-bar:hover .tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 p-4 md:p-8 antialiased">
+
+    <div id="app-container" class="flex max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+        
+        <!-- --- Sidebar (Left Panel) --- -->
+        <aside class="w-full max-w-[280px] p-6 hidden md:flex flex-col justify-between border-r border-gray-100">
+            <div>
+                <!-- Logo -->
+                <h1 class="text-2xl font-extrabold text-gray-800 mb-10">BK Library</h1>
+
+                <!-- Navigation -->
+                <nav class="space-y-2" id="nav-list">
+                    <!-- Nav Items will be injected here by JS or hardcoded -->
+                    <div class="flex items-center p-3 rounded-xl cursor-pointer transition-colors bg-indigo-50 text-indigo-700 font-semibold">
+                        <!-- Dashboard Icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="9" rx="1" ry="1" /><rect x="13" y="3" width="8" height="5" rx="1" ry="1" /><rect x="13" y="9" width="8" height="11" rx="1" ry="1" /><rect x="3" y="15" width="7" height="6" rx="1" ry="1" />
+                        </svg>
+                        <span class="ml-3 text-sm">Dashboard</span>
+                    </div>
+                    <div class="flex items-center p-3 rounded-xl cursor-pointer transition-colors text-gray-500 hover:bg-gray-100">
+                        <!-- Book Icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                        </svg>
+                        <span class="ml-3 text-sm">Book Management</span>
+                    </div>
+                    <div class="flex items-center p-3 rounded-xl cursor-pointer transition-colors text-gray-500 hover:bg-gray-100">
+                        <!-- History Icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span class="ml-3 text-sm">History</span>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- User Profile and Logout -->
+            <div class="mt-8 p-4 bg-indigo-50 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <img
+                        src="https://placehold.co/40x40/FCA5A5/ffffff?text=L"
+                        alt="Librarian Avatar"
+                        class="w-10 h-10 rounded-full object-cover mr-3"
+                        onerror="this.onerror=null;this.src='https://placehold.co/40x40/FCA5A5/ffffff?text=L';"
+                    />
+                    <div>
+                        <div class="font-semibold text-gray-800 text-sm">Mr. Librarian</div>
+                        <div class="text-xs text-gray-500">librarian@edu.vn</div>
+                    </div>
+                </div>
+                <button
+                    onclick="console.log('Logging out...')"
+                    class="w-full py-2 text-sm font-semibold text-white bg-rose-500 rounded-xl hover:bg-rose-600 transition-colors shadow-md"
+                >
+                    Log out
+                </button>
+            </div>
+        </aside>
+
+        <!-- --- Main Dashboard Content (Right Panel) --- -->
+        <main class="flex-1 p-6 lg:p-10">
+            <div class="flex flex-col space-y-8">
+                
+                <!-- Header / Date & Time -->
+                <header class="flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+                    <div class="flex items-center space-x-4 text-sm text-gray-600 font-medium">
+                        <span id="current-date">30/9/2025</span>
+                        <span class="w-1.5 h-1.5 bg-gray-300 rounded-full"></span>
+                        <span id="current-time">09:00</span>
+                    </div>
+                </header>
+
+                <!-- Top Row: Statistics and Chart -->
+                <div class="grid grid-cols-12 gap-6">
+                    
+                    <!-- Stats Cards (Left) -->
+                    <div class="col-span-12 lg:col-span-4 space-y-6">
+                        <div class="text-lg font-semibold text-gray-800">Today statistic</div>
+                        <div class="grid grid-cols-2 gap-4" id="stats-today">
+                            <!-- Stats Cards will be injected here -->
+                        </div>
+                        
+                        <div class="text-lg font-semibold text-gray-800 pt-2">Membership Registered Today</div>
+                        <div class="grid grid-cols-2 gap-4" id="stats-membership">
+                            <!-- Membership Stats will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Chart (Right) -->
+                    <div class="col-span-12 lg:col-span-8">
+                        <div class="p-6 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl h-[400px] md:h-[350px] flex flex-col">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-semibold text-gray-800">Total book borrowed</h2>
+                                <select class="px-3 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option>Year</option>
+                                </select>
+                            </div>
+
+                            <div class="flex-grow flex items-end h-full">
+                                <!-- Y-Axis labels (approximate) -->
+                                <div class="flex flex-col justify-between h-full text-xs text-gray-400 pr-2 pb-4">
+                                    <span>400</span>
+                                    <span>300</span>
+                                    <span>200</span>
+                                    <span>100</span>
+                                    <span>0</span>
+                                </div>
+                                
+                                <!-- Chart Bars Container -->
+                                <div class="flex flex-grow justify-around items-end h-full pt-4" id="bar-chart">
+                                    <!-- Bars will be injected here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Row: Requests and Total Members -->
+                <div class="grid grid-cols-12 gap-6">
+                    
+                    <!-- Pending Requests and Notifications (Left) -->
+                    <div class="col-span-12 lg:col-span-8">
+                        <!-- Pending Requests -->
+                        <div class="p-6 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-lg font-semibold text-gray-800">Pending extend borrowing period request</h2>
+                                <a href="#" class="text-sm font-medium text-indigo-500 hover:text-indigo-600 transition-colors">See All &gt;</a>
+                            </div>
+                            <div class="divide-y divide-gray-100" id="pending-requests-list">
+                                <!-- Request Items will be injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Notifications (Stacked below requests on the left) -->
+                        <div class="mt-6 p-6 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl">
+                            <h2 class="text-lg font-semibold text-gray-800 mb-4">Notification</h2>
+                            <div class="space-y-3" id="notification-list">
+                                <!-- Notifications will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Members and Contact (Right) -->
+                    <div class="col-span-12 lg:col-span-4 space-y-6">
+                        <div class="text-lg font-semibold text-gray-800">Total Register Member</div>
+                        <div class="p-6 h-[150px] flex items-center justify-center bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl">
+                            <span class="text-3xl lg:text-4xl font-extrabold text-indigo-700">69,420 Members</span>
+                        </div>
+
+                        <div class="text-lg font-semibold text-gray-800 pt-2">Contact Us</div>
+                        <div class="space-y-4" id="contact-cards">
+                            <!-- Contact Cards will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Data Definitions (Same as TSX) ---
+        const statsData = [
+            { title: 'Overdue books', value: 0, isRed: true },
+            { title: 'Returned books', value: 27, isRed: false },
+            { title: 'Monthly', value: 11, isLarge: true },
+            { title: 'Annually', value: 9, isLarge: true },
+        ];
+
+        const pendingRequests = [
+            { name: 'Genghis Khan', book: 'Calculus 3', from: '15/10/2025', to: '15/11/2025', avatar: 'https://placehold.co/40x40/4F46E5/ffffff?text=GK' },
+            { name: 'Arthur Dent', book: 'Probability & Sta...', from: '15/10/2025', to: '15/11/2025', avatar: 'https://placehold.co/40x40/3B82F6/ffffff?text=AD' },
+            { name: 'Jane Doe', book: 'Mein Kaft', from: '15/10/2025', to: '15/11/2025', avatar: 'https://placehold.co/40x40/EC4899/ffffff?text=JD' },
+        ];
+
+        const chartData = [50, 80, 120, 90, 150, 180, 220, 280, 310, 250, 350, 400];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const maxValue = 400;
+        
+        const notifications = [
+            { type: 'Overdue', time: '23h59 29/9/2025', subject: 'Calculus 3 - Genghis Khan', color: 'text-rose-500', text: 'Overdue' },
+            { type: 'Alert', time: '23h59 29/9/2025', subject: 'Server', color: 'text-amber-500', text: 'Server downed for maintenance' },
+            { type: 'Returned', time: '12h30 30/9/2025', subject: 'Calculus 3 - Genghis Khan', color: 'text-green-500', text: 'Returned' },
+        ];
+        
+        const contactInfo = [
+            { title: 'Address:', value: 'A2 block, 268 Ly Thuong Kiet, Phuong 14, Quan 10' },
+            { title: 'Phone number:', value: '028 3864 7256' },
+            { title: 'Email:', value: 'thuvien@hcmut.edu.vn' },
+        ];
+
+        // --- Component Functions (Rendering) ---
+
+        function renderStatsCard(item) {
+            const valueClass = item.isRed ? 'text-red-500' : 'text-gray-900';
+            const sizeClass = item.isLarge ? 'h-full flex flex-col justify-center' : '';
+            
+            return `
+                <div class="p-6 bg-white rounded-xl shadow-lg transition-shadow hover:shadow-xl ${sizeClass}">
+                    <div class="text-3xl font-bold ${valueClass}">${item.value}</div>
+                    <div class="text-gray-500 mt-1">${item.title}</div>
+                </div>
+            `;
+        }
+        
+        function renderChartBar(data, month) {
+            const height = (data / maxValue) * 90; // Scale height to 90% of container
+            return `
+                <div class="flex flex-col items-center h-full group chart-bar">
+                    <div 
+                        style="height: ${height}%;"
+                        class="w-4 bg-indigo-500 rounded-t-md transition-all duration-300 hover:bg-indigo-600 cursor-pointer relative"
+                    >
+                        <span class="tooltip absolute -top-6 text-xs bg-gray-700 text-white px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            ${data} books
+                        </span>
+                    </div>
+                    <span class="mt-1 text-xs text-gray-500">${month}</span>
+                </div>
+            `;
+        }
+
+        function renderPendingRequest(req) {
+            return `
+                <div class="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0">
+                    <div class="flex items-center flex-grow min-w-0">
+                        <img src="${req.avatar}" alt="${req.name}" class="w-10 h-10 rounded-full object-cover mr-3" 
+                             onerror="this.onerror=null;this.src='https://placehold.co/40x40/cccccc/000000?text=U';" />
+                        <div class="min-w-0 flex-1">
+                            <div class="font-medium text-sm text-gray-800 truncate">${req.name}</div>
+                            <div class="text-xs text-gray-500 truncate">${req.book}</div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-start mx-4 text-xs text-gray-500 hidden sm:block">
+                        <div class="whitespace-nowrap">From: <span class="font-medium text-gray-700">${req.from}</span></div>
+                        <div class="whitespace-nowrap">To: <span class="font-medium text-gray-700">${req.to}</span></div>
+                    </div>
+                    <div class="flex space-x-2 flex-shrink-0">
+                        <button class="px-3 py-1 text-xs font-semibold text-white bg-indigo-500 rounded-lg hover:bg-indigo-600 transition-colors shadow-md">
+                            Accept
+                        </button>
+                        <button class="px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors shadow-md">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderNotification(notif) {
+            return `
+                <p class="flex items-start text-sm text-gray-700">
+                    <span class="${notif.color} font-bold mr-2">!</span>
+                    <span class="flex-1">
+                        <span class="font-medium">${notif.time} - ${notif.subject}:</span> ${notif.text}
+                    </span>
+                </p>
+            `;
+        }
+        
+        function renderContactCard(contact) {
+            return `
+                <div class="p-4 bg-white rounded-xl shadow-lg text-center">
+                    <div class="text-sm font-medium text-gray-500 mb-2">${contact.title}</div>
+                    <div class="text-base font-semibold text-gray-800 break-words">${contact.value}</div>
+                </div>
+            `;
+        }
+
+
+        // --- Initialization on Load ---
+        window.onload = function() {
+            // 1. Set current date and time (using the original hardcoded values for visual consistency)
+            // If you wanted actual time, you would use:
+            // const now = new Date();
+            // document.getElementById('current-date').textContent = now.toLocaleDateString('en-GB');
+            // document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            
+            // 2. Render Statistics Cards
+            document.getElementById('stats-today').innerHTML = statsData.slice(0, 2).map(renderStatsCard).join('');
+            document.getElementById('stats-membership').innerHTML = statsData.slice(2, 4).map(renderStatsCard).join('');
+
+            // 3. Render Bar Chart Bars
+            document.getElementById('bar-chart').innerHTML = chartData.map((data, index) => renderChartBar(data, months[index])).join('');
+
+            // 4. Render Pending Requests
+            document.getElementById('pending-requests-list').innerHTML = pendingRequests.map(renderPendingRequest).join('');
+
+            // 5. Render Notifications
+            document.getElementById('notification-list').innerHTML = notifications.map(renderNotification).join('');
+            
+            // 6. Render Contact Cards
+            document.getElementById('contact-cards').innerHTML = contactInfo.map(renderContactCard).join('');
+        };
+    </script>
+</body>
+</html>
