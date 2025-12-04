@@ -12,7 +12,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251204054708_InitialCreate")]
+    [Migration("20251204070528_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -170,10 +170,6 @@ namespace backend.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("text");
 

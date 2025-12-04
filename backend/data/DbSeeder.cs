@@ -134,45 +134,36 @@ namespace backend.Data
                 {
                     Username = "john_doe",
                     Email = "john.doe@university.edu",
-                    Password = "password123",
-                    Role = "Student",
                     StudentId = "S2024001",
-                    Major = "Computer Science",
-                    Year = 2,
                     MembershipPoints = 150
                 },
                 new Student
                 {
                     Username = "jane_smith",
                     Email = "jane.smith@university.edu",
-                    Password = "password123",
-                    Role = "Student",
                     StudentId = "S2024002",
-                    Major = "Engineering",
-                    Year = 3,
                     MembershipPoints = 300
                 },
                 new Student
                 {
                     Username = "mike_johnson",
                     Email = "mike.johnson@university.edu",
-                    Password = "password123",
-                    Role = "Student",
                     StudentId = "S2024003",
-                    Major = "Mathematics",
-                    Year = 1,
                     MembershipPoints = 50
                 },
                 new Student
                 {
                     Username = "emily_brown",
                     Email = "emily.brown@university.edu",
-                    Password = "password123",
-                    Role = "Student",
                     StudentId = "S2024004",
-                    Major = "Physics",
-                    Year = 4,
                     MembershipPoints = 600
+                },
+                new Student
+                {
+                    Username = "alex_wilson",
+                    Email = "alex.wilson@university.edu",
+                    StudentId = "S2024005",
+                    MembershipPoints = 200
                 }
             };
 
@@ -187,23 +178,25 @@ namespace backend.Data
                 {
                     Username = "prof_smith",
                     Email = "smith@university.edu",
-                    Password = "password123",
-                    Role = "Faculty",
                     FacultyId = "F001",
                     Department = "Computer Science",
-                    Position = "Associate Professor",
                     MembershipPoints = 800
                 },
                 new FacultyMember
                 {
                     Username = "prof_jones",
                     Email = "jones@university.edu",
-                    Password = "password123",
-                    Role = "Faculty",
                     FacultyId = "F002",
                     Department = "Mathematics",
-                    Position = "Professor",
                     MembershipPoints = 1200
+                },
+                new FacultyMember
+                {
+                    Username = "prof_davis",
+                    Email = "davis@university.edu",
+                    FacultyId = "F003",
+                    Department = "Physics",
+                    MembershipPoints = 500
                 }
             };
 
@@ -211,26 +204,21 @@ namespace backend.Data
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {faculty.Count} faculty members");
 
-            // Seed Librarians - Fix DateTime for PostgreSQL
+            // Seed Librarians
             var librarians = new List<Librarian>
             {
                 new Librarian
                 {
                     Username = "lib_alice",
                     Email = "alice@library.edu",
-                    Password = "password123",
-                    Role = "Librarian",
+                    
                     EmployeeId = "LIB001",
-                    HireDate = DateTime.SpecifyKind(new DateTime(2020, 1, 15), DateTimeKind.Utc)
                 },
                 new Librarian
                 {
                     Username = "lib_bob",
                     Email = "bob@library.edu",
-                    Password = "password123",
-                    Role = "Librarian",
                     EmployeeId = "LIB002",
-                    HireDate = DateTime.SpecifyKind(new DateTime(2021, 6, 1), DateTimeKind.Utc)
                 }
             };
 
@@ -245,46 +233,19 @@ namespace backend.Data
                 {
                     Username = "admin",
                     Email = "admin@library.edu",
-                    Password = "admin123",
-                    Role = "Admin",
                     AdminId = "ADM001",
-                    AccessLevel = "SystemAdmin",
-                    LastLogin = DateTime.UtcNow
+                },
+                new Admin
+                {
+                    Username = "superadmin",
+                    Email = "superadmin@library.edu",
+                    AdminId = "ADM002",
                 }
             };
 
             await context.Admins.AddRangeAsync(admins);
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {admins.Count} admins");
-
-            Console.WriteLine("🎫 Seeding memberships...");
-
-            // Seed Memberships for Students and Faculty
-            var memberships = new List<Membership>();
-
-            foreach (var student in students)
-            {
-                memberships.Add(new Membership
-                {
-                    UserId = student.Id,
-                    Points = student.MembershipPoints,
-                    ExpiryDate = DateTime.UtcNow.AddYears(1)
-                });
-            }
-
-            foreach (var fac in faculty)
-            {
-                memberships.Add(new Membership
-                {
-                    UserId = fac.Id,
-                    Points = fac.MembershipPoints,
-                    ExpiryDate = DateTime.UtcNow.AddYears(2)
-                });
-            }
-
-            await context.Memberships.AddRangeAsync(memberships);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {memberships.Count} memberships");
 
             Console.WriteLine("✅ Database seeded successfully!");
         }

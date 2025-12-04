@@ -38,7 +38,6 @@ namespace backend.controllers
                     {
                         Username = request.Username,
                         Email = request.Email,
-                        Password = request.Password,
                         Role = "Student",
                         StudentId = request.RoleSpecificId ?? string.Empty,
                         Major = request.Major ?? string.Empty,
@@ -49,7 +48,6 @@ namespace backend.controllers
                     {
                         Username = request.Username,
                         Email = request.Email,
-                        Password = request.Password,
                         Role = "Faculty",
                         FacultyId = request.RoleSpecificId ?? string.Empty,
                         Department = request.Department ?? string.Empty,
@@ -60,7 +58,6 @@ namespace backend.controllers
                     {
                         Username = request.Username,
                         Email = request.Email,
-                        Password = request.Password,
                         Role = "Librarian",
                         EmployeeId = request.RoleSpecificId ?? string.Empty,
                         HireDate = DateTime.UtcNow
@@ -69,7 +66,6 @@ namespace backend.controllers
                     {
                         Username = request.Username,
                         Email = request.Email,
-                        Password = request.Password,
                         Role = "Admin",
                         AdminId = request.RoleSpecificId ?? string.Empty,
                         AccessLevel = request.AccessLevel ?? "SystemAdmin",
@@ -187,8 +183,7 @@ namespace backend.controllers
                     user.Username = request.Username;
                 if (!string.IsNullOrEmpty(request.Email))
                     user.Email = request.Email;
-                if (!string.IsNullOrEmpty(request.Password))
-                    user.Password = request.Password;
+                
 
                 // Update role-specific fields
                 if (user is Student student)
