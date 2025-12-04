@@ -1,3 +1,4 @@
+// src/pages/user/Dashboard/index.tsx
 import { UserDashboardData } from "./components/UserDashboardData";
 import { UserDashboardGeneralInfo } from "./components/UserDashboardGeneralInfo";
 
@@ -12,8 +13,9 @@ export function MemberDashboard() {
           borderBottom: "1px solid rgba(0,0,0,0.2)",
         }}
       >
-        Dashboard
+        User Dashboard
       </h2>
+
       <div
         style={{
           display: "grid",
@@ -27,3 +29,5 @@ export function MemberDashboard() {
     </>
   );
 }
+
+export default MemberDashboard;

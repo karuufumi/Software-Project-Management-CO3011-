@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type AllowedRole = "admin" | "user" | "guest" | "member";
+
+interface FastApiErrorDetail {
+  msg: string;
+}
+
 export default function Register() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState<AllowedRole>("user");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role] = useState("user");
-  const [showPwd, setShowPwd] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -29,17 +34,21 @@ export default function Register() {
       return;
     }
 
-    setError("");
+    const validRoles: AllowedRole[] = ["admin", "user", "guest", "member"];
+    if (!validRoles.includes(role)) {
+      setError("Invalid role. Choose admin, user, guest or member.");
+      return;
+    }
+
     setLoading(true);
+    setError("");
 
     try {
-      const response = await fetch(
+      const authRes = await fetch(
         "https://lms-authentication-microservice.onrender.com/register",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
             name,
@@ -49,16 +58,25 @@ export default function Register() {
         }
       );
 
-      const data = await response.json();
+      const authData = await authRes.json();
 
-      if (response.ok) {
-        alert("Registration successful! Please login with your new credentials.");
-        navigate("/login");
-      } else {
-        setError(data.message || "Registration failed. Please try again.");
+      if (!authRes.ok) {
+        let message = "Registration failed";
+
+        if (Array.isArray(authData.detail)) {
+          message = authData.detail.map((e: FastApiErrorDetail) => e.msg).join(" | ");
+        } else if (typeof authData.detail === "string") {
+          message = authData.detail;
+        }
+
+        setError(message);
+        return;
       }
+
+      alert("Registration successful! Please login.");
+      navigate("/login");
     } catch {
-      setError("Network error. Please try again.");
+      setError("Unable to connect to authentication server.");
     } finally {
       setLoading(false);
     }
@@ -68,7 +86,7 @@ export default function Register() {
     <div className="login-container">
       <form className="login-card" onSubmit={handleRegister}>
         <h2 className="title">Register</h2>
-        <p className="subtitle">Feel nice to create a new account.</p>
+        <p className="subtitle">Create your account</p>
 
         {error && <p className="error">{error}</p>}
 
@@ -76,61 +94,53 @@ export default function Register() {
         <input
           className="input"
           type="text"
-          placeholder="Enter your Name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
           required
+          onChange={(e) => setName(e.target.value)}
         />
 
         <label>Email</label>
         <input
           className="input"
           type="email"
-          placeholder="Enter your Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
           required
+          onChange={(e) => setEmail(e.target.value)}
         />
 
         <label>Password</label>
-        <div className="password-wrapper">
-          <input
-            className="input"
-            type={showPwd ? "text" : "password"}
-            placeholder="Enter your Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <span className="eye" onClick={() => setShowPwd(!showPwd)}>
-            {showPwd ? "👁️" : "👁️‍🗨️"}
-          </span>
-        </div>
+        <input
+          className="input"
+          type="password"
+          value={password}
+          required
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <label>Confirm Password</label>
-        <div className="password-wrapper">
-          <input
-            className="input"
-            type={showPwd ? "text" : "password"}
-            placeholder="Confirm your Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <span className="eye" onClick={() => setShowPwd(!showPwd)}>
-            {showPwd ? "👁️" : "👁️‍🗨️"}
-          </span>
-        </div>
+        <input
+          className="input"
+          type="password"
+          value={confirmPassword}
+          required
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
 
-        
+        <label>Role</label>
+        <select
+          className="input"
+          value={role}
+          onChange={(e) => setRole(e.target.value as AllowedRole)}
+        >
+          <option value="user">User / Member</option>
+          <option value="admin">Admin</option>
+          <option value="guest">Guest</option>
+          <option value="member">Member</option>
+        </select>
 
-        <button type="submit" className="login-btn" disabled={loading}>
+        <button className="login-btn" type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </button>
-
-        <div className="divider">
-          <span>OR</span>
-        </div>
 
         <div className="signup-text">
           Already have an account? <a href="/login">Login</a>

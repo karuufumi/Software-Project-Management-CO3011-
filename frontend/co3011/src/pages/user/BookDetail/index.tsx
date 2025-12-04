@@ -1,76 +1,71 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "./button";
-import { booksData } from "../../user/booksData"; 
 import "./BookDetail.css";
+import { fetchBookById, requestBorrow } from "./bookDetailService";
 
 type Book = {
-  bookid: number;
+  bookId: string;
   title: string;
-  author?: string;
-  publishedYear?: string;
-  publisher?: string;
-  availableCopy?: number;
-  rarity?: string;
-  genre?: string[];
-  description?: string;
-  image: string;
+  author: string;
+  isbn: string;
+  genre: string;
+  availableCopies: number;
+  description: string;
   addedDate?: string;
   time?: string;
 };
 
 export function BookDetail() {
-  const { bookid } = useParams<{ bookid: string }>(); 
-  const [book, setBook] = useState<Book | null>(null); 
-
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString("en-GB"); 
-  const formattedTime = currentDate.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const { bookid } = useParams<{ bookid: string }>();
+  const [book, setBook] = useState<Book | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [borrowMessage, setBorrowMessage] = useState("");
 
   useEffect(() => {
-    if (bookid) {
-      //  Simulate fetching from API using local mock data
-      //    In a real app, this would be an API call like:
-      /*
-      fetch(`/api/books/${bookid}`)
-        .then((res) => res.json())
-        .then((data) => setBook(data));
-      */
+    if (!bookid) return;
 
-      //  For now, use mock data from booksData (used in catalog)
-      const allBooks = Object.values(booksData).flat(); // combine all categories
-      const foundBook = allBooks.find(
-        (b) => b.bookid === Number(bookid)
-      ) as Book | undefined;
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("en-GB");
+    const formattedTime = now.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-      //  Apply fallback info for missing fields
-      if (foundBook) {
-        setBook({
-          author: "Unknown Author",
-          publishedYear: "N/A",
-          publisher: "N/A",
-          availableCopy: 10,
-          rarity: "Common",
-          genre: ["General"],
-          description: "No detailed description available.",
-          addedDate: formattedDate,
-          time: formattedTime,
-          ...foundBook, // merge with actual mock data
-        });
-      }
-    }
+    fetchBookById(bookid).then((data) => {
+      setBook(data ? { addedDate: formattedDate, time: formattedTime, ...data } : null);
+      setLoading(false);
+    });
   }, [bookid]);
 
-  if (!book) {
-    return <p>Loading book details...</p>;
-  }
+  const handleBorrow = async () => {
+    const userId = localStorage.getItem("userId");
+
+    if (!userId) {
+      setBorrowMessage("⚠ You must be logged in to borrow.");
+      return;
+    }
+
+    if (!book) {
+      setBorrowMessage("❌ Book data unavailable.");
+      return;
+    }
+
+    const response = await requestBorrow(userId, book.bookId);
+
+    if (response?.success) {
+      setBorrowMessage("✅ Borrow request submitted!");
+    } else {
+      setBorrowMessage("❌ " + (response?.message || "Failed to request borrow"));
+    }
+  };
+
+  if (loading) return <p>Loading book details...</p>;
+  if (!book) return <p>❌ Book not found.</p>;
 
   return (
     <div className="book-detail-container">
-      <h1 className="book-detail-title">Book Detail</h1>
+      <h1 className="book-detail-title">{book.title}</h1>
 
       <div className="book-detail-date">
         <span>📅 {book.addedDate}</span>
@@ -79,50 +74,51 @@ export function BookDetail() {
 
       <div className="book-detail-content">
         <div className="book-left">
-          <img
-            src={book.image}
-            alt={book.title}
-            className="book-cover"
-          />
+          <div
+            style={{
+              width: 160,
+              height: 220,
+              backgroundColor: "#d9d9d9",
+              borderRadius: 6,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 10,
+              fontWeight: 600,
+              textAlign: "center",
+            }}
+          >
+            {book.title}
+          </div>
 
-          <Button className="btn-borrow">Borrow</Button>
+          <Button className="btn-borrow" onClick={handleBorrow}>
+            Borrow
+          </Button>
 
-          <Button className="btn-queue">Add to Borrow Queue</Button>
+          {borrowMessage && (
+            <p
+              style={{
+                marginTop: 10,
+                color: borrowMessage.startsWith("❌") ? "red" : "green",
+                fontWeight: 600,
+              }}
+            >
+              {borrowMessage}
+            </p>
+          )}
         </div>
 
         <div className="book-right">
           <div className="book-info-grid">
-            <div className="book-info-box">
-              <strong>Author:</strong> {book.author}
-            </div>
-            <div className="book-info-box">
-              <strong>Published Year:</strong> {book.publishedYear}
-            </div>
-            <div className="book-info-box">
-              <strong>Publisher:</strong> {book.publisher}
-            </div>
-            <div className="book-info-box">
-              <strong>Available Copy:</strong> {book.availableCopy}
-            </div>
-            <div className="book-info-box">
-              <strong>Rarity:</strong> {book.rarity}
-            </div>
+            <div className="book-info-box"><strong>Author:</strong> {book.author}</div>
+            <div className="book-info-box"><strong>ISBN:</strong> {book.isbn}</div>
+            <div className="book-info-box"><strong>Genre:</strong> {book.genre}</div>
+            <div className="book-info-box"><strong>Available Copies:</strong> {book.availableCopies}</div>
           </div>
 
-          <div className="book-genre-description">
-            <div className="book-genre">
-              <h3>Genre</h3>
-              <div className="genre-tags">
-                {book.genre?.map((g) => (
-                  <span key={g} className="genre-tag">{g}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="book-description">
-              <h3>Description</h3>
-              <p>{book.description}</p>
-            </div>
+          <div className="book-description">
+            <h3>Description</h3>
+            <p>{book.description}</p>
           </div>
         </div>
       </div>
