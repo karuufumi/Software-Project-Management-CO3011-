@@ -1,37 +1,67 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/*
-const ACCOUNT = {
-  email: "admin@gmail.com",
-  password: "123456",
-};
-*/
-
 export default function Register() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role] = useState("user");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (password && confirmPassword && password !== confirmPassword) {
       setError("Passwords do not match");
     } else {
-        console.log("Passwords match");
-        setError("");
+      setError("");
     }
   }, [confirmPassword, password]);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    alert("Registration successful! Please login with your new credentials.");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
 
-    navigate("/login");
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://lms-authentication-microservice.onrender.com/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            name,
+            password,
+            role,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Registration successful! Please login with your new credentials.");
+        navigate("/login");
+      } else {
+        setError(data.message || "Registration failed. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,6 +71,16 @@ export default function Register() {
         <p className="subtitle">Feel nice to create a new account.</p>
 
         {error && <p className="error">{error}</p>}
+
+        <label>Name</label>
+        <input
+          className="input"
+          type="text"
+          placeholder="Enter your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
         <label>Email</label>
         <input
@@ -82,8 +122,10 @@ export default function Register() {
           </span>
         </div>
 
-        <button type="submit" className="login-btn">
-          Register
+        
+
+        <button type="submit" className="login-btn" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
         </button>
 
         <div className="divider">
