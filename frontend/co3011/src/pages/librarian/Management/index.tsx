@@ -1,18 +1,5 @@
-interface BookDetailProps {
-  title: string;
-  author: string;
-  year: number;
-  publisher: string;
-  genre: string;
-  description: string;
-  copies: number;
-  rarity: string;
-  imageUrl: string;
-  onAccept?: () => void;
-  onReject?: () => void;
-}
 
-export default function LBookDetailx(_: BookDetailProps){
+export default function LBookDetailx(){
 
 return (
   
