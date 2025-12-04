@@ -1,4 +1,3 @@
-import React from "react";
 import LeaderboardTable from "./components/LeaderboardTable";
 import "./leaderboard.css";
 

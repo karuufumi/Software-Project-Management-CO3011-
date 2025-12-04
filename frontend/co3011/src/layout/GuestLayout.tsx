@@ -35,9 +35,11 @@ export function GuestLayout({
   ];
   const itemsNav = items.length ? items : fallbackItems;
 
+  /*
   const handleLoginPlaceholder = () => {
     alert("Log in not implemented yet.");
   };
+  */
   const handleSignupPlaceholder = () => {
     alert("Sign up not implemented yet.");
   };
@@ -45,9 +47,11 @@ export function GuestLayout({
   const handleLogin = () => {
     navigate("/login");
   }
+  /*
   const handleSignup = () => {
     navigate("/signup");
   }
+    */
 
 
   return (
