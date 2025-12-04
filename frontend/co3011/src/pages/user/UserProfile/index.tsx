@@ -1,10 +1,29 @@
 import Widget from "../../../components/widget/widget";
-import Button from "../../../components/button/button"; 
+import Button from "../../../components/button/button";
+import { useEffect, useState } from "react";
 
 export default function UserProfile() {
+  const [username, setUsername] = useState("Unknown");
+  const [email, setEmail] = useState("Unknown");
+  const [role, setRole] = useState("User");
+  const [joined, setJoined] = useState("N/A");
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    const storedEmail = localStorage.getItem("email");
+    const storedRole = localStorage.getItem("role");
+    const storedJoinDate = localStorage.getItem("createdAt"); // Optional if you add this later
+
+    if (storedUsername) setUsername(storedUsername);
+    if (storedEmail) setEmail(storedEmail);
+    if (storedRole) setRole(storedRole);
+    if (storedJoinDate) setJoined(new Date(storedJoinDate).toLocaleDateString());
+  }, []);
+
   return (
     <>
-      <h2 style={{ fontWeight: 600, marginBottom: "20px" }}>Book Detail</h2>
+      <h2 style={{ fontWeight: 600, marginBottom: "20px" }}>User Profile</h2>
+
       <div
         style={{
           display: "flex",
@@ -15,19 +34,16 @@ export default function UserProfile() {
         {/* Left column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <Widget title="Username">
-            <p>Adoft Hitless</p>
+            <p>{username}</p>
           </Widget>
           <Widget title="Email">
-            <p>adoft.hitless@hcmut.edu.vn</p>
+            <p>{email}</p>
+          </Widget>
+          <Widget title="Role">
+            <p style={{ textTransform: "capitalize" }}>{role}</p>
           </Widget>
           <Widget title="Joined At">
-            <p>16/04/2021</p>
-          </Widget>
-          <Widget title="Total Points">
-            <p>30,712</p>
-          </Widget>
-          <Widget title="Borrowed Books">
-            <p>311</p>
+            <p>{joined}</p>
           </Widget>
         </div>
 
@@ -35,30 +51,27 @@ export default function UserProfile() {
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <Widget title="Contact Info">
             <div className="card" style={{ background: "var(--color-muted)" }}>
-              123 đường ABC
+              Address: Updating...
             </div>
             <div className="card" style={{ background: "var(--color-muted)" }}>
-              Phone: 0190234569
+              Phone: Updating...
             </div>
             <div className="card" style={{ background: "var(--color-muted)" }}>
-              Business Management
-            </div>
-            <div className="card" style={{ background: "var(--color-muted)" }}>
-              Fax: 019277455
+              Department: Updating...
             </div>
           </Widget>
 
           <Button
-            label="Change"
+            label="Edit Profile"
             color="var(--color-primary)"
             roundness={8}
-            onClick={() => alert("Change clicked")}
+            onClick={() => alert("Profile editing coming soon!")}
           />
           <Button
             label="Delete Account"
             color="var(--color-danger)"
             roundness={8}
-            onClick={() => alert("Account deleted")}
+            onClick={() => alert("Delete Feature will be integrated later")}
           />
         </div>
       </div>

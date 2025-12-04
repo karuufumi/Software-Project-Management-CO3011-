@@ -1,100 +1,69 @@
-/* Leaderboard container */
+/* Leaderboard wrapper */
 .leaderboard-wrapper {
   width: 100%;
   overflow-x: auto;
 }
 
-/* Base table styling */
+/* Base table */
 .leaderboard-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 12px;
   font-family: "Inter", sans-serif;
   font-size: 18px;
-  table-layout: auto;
 }
 
-/* Table header */
+/* Header */
 .leaderboard-table th {
   text-align: left;
-  padding: 16px 24px;
-  color: #666;
+  padding: 16px 20px;
+  color: #555;
   font-weight: 600;
   border-bottom: 2px solid #ddd;
-  background-color: #f9f9f9;
+  background-color: #fafafa;
 }
 
-/* Column width control */
-.rank-col {
-  width: 10%;
-  text-align: left;
-}
-.name-col {
-  width: 55%;
-}
-.points-col {
-  width: 25%;
-  text-align: right;
-}
-
-/* Table rows */
-.leaderboard-row td {
-  padding: 20px 24px;
+/* Rows */
+.leaderboard-table td {
+  padding: 18px 20px;
   background-color: #fff;
   border-bottom: 1px solid #eee;
-  vertical-align: middle;
 }
 
-/* Hover effect */
-.leaderboard-row:hover td {
-  background-color: #f0f4ff;
-  transition: 0.2s ease;
+/* Hover */
+.leaderboard-table tr:hover td {
+  background-color: #f0f6ff;
 }
 
-/* Rank column */
+/* Rank */
 .rank-cell {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 20px;
-  color: #333;
+  width: 10%;
 }
 
-/* Avatar and name alignment */
+/* Name avatar column */
 .name-cell {
   display: flex;
   align-items: center;
   gap: 16px;
   font-weight: 500;
   color: #222;
+  width: 60%;
 }
 
 .leaderboard-avatar {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #eee;
+  border: 2px solid #e1e1e1;
 }
 
-/* Points column */
+/* Points right align */
 .points-cell {
+  width: 20%;
   font-weight: 700;
   color: #2d2d2d;
   text-align: right;
-}
-
-/* Responsive behavior */
-@media (max-width: 768px) {
-  .name-col {
-    width: 45%;
-  }
-  .points-col {
-    width: 30%;
-  }
-  .leaderboard-avatar {
-    width: 40px;
-    height: 40px;
-  }
-  .leaderboard-table {
-    font-size: 16px;
-  }
 }

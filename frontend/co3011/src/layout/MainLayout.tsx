@@ -3,6 +3,7 @@ import Button from "../components/button/button";
 import { navFocused } from "../data/navbarListData";
 import type { PropsWithChildren } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 interface MainLayoutProps extends PropsWithChildren {
   navFocusedElem?: string;
@@ -11,6 +12,23 @@ interface MainLayoutProps extends PropsWithChildren {
 export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
   const itemsNav = navFocused("user", navFocusedElem);
   const navigate = useNavigate();
+
+  const [username, setUsername] = useState("Unknown User");
+  const [email, setEmail] = useState("No email");
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    const storedEmail = localStorage.getItem("email");
+
+    if (storedUsername) setUsername(storedUsername);
+    if (storedEmail) setEmail(storedEmail);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -18,23 +36,28 @@ export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
         header={<h2 style={{ fontWeight: 700 }}>BK Library</h2>}
         items={itemsNav}
         footer={
-          <div className="sidebar-footer">
-            <div className="profile-card">
-              <div style={{ fontWeight: 600 }}>Adoft Hitless</div>
+          <div className="sidebar-footer" style={{ marginTop: "auto" }}>
+            <div
+              className="profile-card"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/userprofile")}
+            >
+              <div style={{ fontWeight: 600 }}>{username}</div>
               <div
                 style={{
                   fontSize: "12px",
                   color: "var(--color-text-secondary)",
                 }}
               >
-                adoft.hitless@hcmut.edu.vn
+                {email}
               </div>
             </div>
+
             <Button
               label="Log out"
               color="var(--color-danger)"
               roundness={10}
-              onClick={() => navigate("/login")}
+              onClick={handleLogout}
             />
           </div>
         }
@@ -45,3 +68,5 @@ export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
     </div>
   );
 }
+
+export default MainLayout;

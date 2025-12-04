@@ -1,39 +1,65 @@
 import { ProgressBar } from "../../../../../components/progessbar";
 import Widget from "../../../../../components/widget/widget";
-import viteLogo from "/vite.svg";
 import { useNavigate } from "react-router-dom";
-import paths from "../../../../../routes/paths";
+import { useEffect, useState } from "react";
 
 export function UserDashboardData() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const handleSeeAll = () => {
-    navigate(paths.USER.LEADERBOARD);
-  }
+  const [borrowCount, setBorrowCount] = useState(0);
+  const [onlineMinutes, setOnlineMinutes] = useState(0);
+
+  useEffect(() => {
+    const savedBorrow = Number(localStorage.getItem("borrowCount") || 0);
+    const savedOnlineMinutes = Number(localStorage.getItem("onlineMinutes") || 0);
+
+    setBorrowCount(savedBorrow);
+    setOnlineMinutes(savedOnlineMinutes);
+
+    const interval = setInterval(() => {
+      setOnlineMinutes((prev) => {
+        const updated = prev + 1;
+        localStorage.setItem("onlineMinutes", updated.toString());
+        return updated;
+      });
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 30 }}>
-      <Widget title="New Book" alignItems="flex-start" textAlign="start">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-around",
-            width: "100%",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-            <p style={{ color: "rgba(0,0,0,0.7)" }}>
-              Snow White and the 7 dwarfs
-            </p>
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-            <p style={{ color: "rgba(0,0,0,0.7)" }}>Mein Kaft</p>
-          </div>
-        </div>
+
+      <Widget title="Recently Added Books" alignItems="flex-start" textAlign="start">
+        <p style={{ margin: 0, color: "rgba(0,0,0,0.7)" }}>📗 Introduction to Machine Learning</p>
+        <p style={{ margin: 0, color: "rgba(0,0,0,0.7)" }}>📘 Data Structures Using Java</p>
       </Widget>
 
-      
+      <Widget title="Weekly Challenge" alignItems="flex-start" textAlign="start">
+        <ProgressBar
+          progressTitle="Borrow 1 book"
+          progressValue={Math.min(borrowCount / 1, 1)}
+          progressDisplayValue="+10pts"
+          progressValueDescription={`${borrowCount}/1`}
+          color={borrowCount >= 1 ? "green" : "rgba(0,0,0,0.25)"}
+        />
+
+        <ProgressBar
+          progressTitle="Borrow 5 books"
+          progressValue={Math.min(borrowCount / 5, 1)}
+          progressDisplayValue="+20pts"
+          progressValueDescription={`${borrowCount}/5`}
+          color={borrowCount >= 5 ? "green" : "rgba(0,0,0,0.25)"}
+        />
+
+        <ProgressBar
+          progressTitle="Online 180 minutes"
+          progressValue={Math.min(onlineMinutes / 180, 1)}
+          progressDisplayValue="+50pts"
+          progressValueDescription={`${onlineMinutes}/180`}
+          color={onlineMinutes >= 180 ? "green" : "rgba(0,0,0,0.25)"}
+        />
+      </Widget>
 
       <Widget alignItems="flex-start" textAlign="start">
         <div
@@ -47,78 +73,20 @@ export function UserDashboardData() {
         >
           <h3 style={{ color: "rgba(0,0,0,0.5)" }}>Leaderboard</h3>
           <h3
-            onClick={handleSeeAll}
-            style={{
-              color: "blue",
-              cursor: "pointer",
-              textDecoration: "underline",
-            }}
+            onClick={() => navigate("/user/leaderboard")}
+            style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
           >
-            See all {">>"}
+            See all »
           </h3>
-
-        </div>
-
-        <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          
-          <ProgressBar
-            progressTitle="John Doe"
-            progressValue={1}
-            progressDisplayValue="1300"
-            color="pink"
-          />
-        </div>
-
-        <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          
-          <ProgressBar
-            progressTitle="Adam Jones"
-            progressValue={1}
-            progressDisplayValue="1230"
-            color="pink"
-          />
-        </div>
-
-        <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          
-          <ProgressBar
-            progressTitle="Joseph Gilles"
-            progressValue={1}
-            progressDisplayValue="1224"
-            color="pink"
-          />
         </div>
       </Widget>
 
-      <Widget title="Uncommon book" alignItems="flex-start" textAlign="start">
-        <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          <img
-            src={viteLogo}
-            className="logo"
-            alt="Vite logo"
-            style={{ maxHeight: 55 }}
-          />
-          <ProgressBar
-            progressTitle="Probability & Statistic Answer keys"
-            progressValue={1}
-            color="green"
-          />
-        </div>
-
-        <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          <img
-            src={viteLogo}
-            className="logo"
-            alt="Vite logo"
-            style={{ maxHeight: 55 }}
-          />
-          <ProgressBar
-            progressTitle="The Lord of the Rings"
-            progressValue={1}
-            color="#0088FF"
-          />
-        </div>
+      <Widget title="Rare Collections" alignItems="flex-start" textAlign="start">
+        <p style={{ margin: "5px 0" }}>📙 Ancient Civil Engineering Manuscript</p>
+        <p style={{ margin: "5px 0" }}>📕 1956 Printed - Thermodynamics</p>
       </Widget>
     </div>
   );
 }
+
+export default UserDashboardData;
