@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field
 from controllers import (
     authenticate_user, register_user, get_user_by_id,
@@ -72,6 +73,16 @@ app = FastAPI(
             "description": "System health and status",
         },
     ]
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allow all headers
+    expose_headers=["*"],
 )
 
 # Initialize MongoDB on startup
@@ -190,6 +201,7 @@ class UserInfoResponse(BaseModel):
     email: str = Field(..., description="User email address")
     role: str = Field(..., description="User role")
     is_2fa_enabled: bool = Field(..., description="Whether 2FA is enabled")
+
 # Dependency to verify token
 def get_current_user(authorization: str = Header(None, description="Bearer token")):
     """Verify JWT token and return user data"""
