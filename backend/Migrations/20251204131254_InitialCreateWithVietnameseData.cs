@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCreateWithVietnameseData : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,6 +17,7 @@ namespace backend.Migrations
                 {
                     BookId = table.Column<string>(type: "text", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
+                    Tier = table.Column<int>(type: "integer", nullable: false),
                     Author = table.Column<string>(type: "text", nullable: false),
                     ISBN = table.Column<string>(type: "text", nullable: false),
                     Genre = table.Column<string>(type: "text", nullable: false),
@@ -37,9 +38,8 @@ namespace backend.Migrations
                     Id = table.Column<string>(type: "text", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    Role = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UserType = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
                     AdminId = table.Column<string>(type: "text", nullable: true),
                     AccessLevel = table.Column<string>(type: "text", nullable: true),
                     LastLogin = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),

@@ -5,9 +5,10 @@ namespace backend.Data
 {
     public static class DbSeeder
     {
+        private static readonly Random _random = new();
+
         public static async Task SeedDatabase(ApplicationDbContext context)
         {
-            // Check if data already exists
             if (await context.Books.AnyAsync())
             {
                 Console.WriteLine("✅ Database already seeded!");
@@ -125,129 +126,80 @@ namespace backend.Data
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {books.Count} books");
 
-            Console.WriteLine("👥 Seeding users...");
+            // -----------------------------------------
+            // 🧑‍🎓 SEED 10 VIETNAMESE STUDENTS
+            // -----------------------------------------
+            Console.WriteLine("👥 Seeding Vietnamese students...");
 
-            // Seed Students
-            var students = new List<Student>
+            string[] vnNames = new[]
             {
-                new Student
-                {
-                    Username = "john_doe",
-                    Email = "john.doe@university.edu",
-                    StudentId = "S2024001",
-                    MembershipPoints = 150
-                },
-                new Student
-                {
-                    Username = "jane_smith",
-                    Email = "jane.smith@university.edu",
-                    StudentId = "S2024002",
-                    MembershipPoints = 300
-                },
-                new Student
-                {
-                    Username = "mike_johnson",
-                    Email = "mike.johnson@university.edu",
-                    StudentId = "S2024003",
-                    MembershipPoints = 50
-                },
-                new Student
-                {
-                    Username = "emily_brown",
-                    Email = "emily.brown@university.edu",
-                    StudentId = "S2024004",
-                    MembershipPoints = 600
-                },
-                new Student
-                {
-                    Username = "alex_wilson",
-                    Email = "alex.wilson@university.edu",
-                    StudentId = "S2024005",
-                    MembershipPoints = 200
-                }
+                "Nguyen Van An", "Tran Thi Bich", "Le Hoang Nam", "Pham Minh Khang",
+                "Hoang Gia Bao", "Vo Thi Kim", "Dang Quoc Huy", "Bui Thanh Phuong",
+                "Do Ngoc Lan", "Phan Bao Chau"
             };
+
+            var students = vnNames.Select((name, index) => new Student
+            {
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                StudentId = "225" + _random.Next(1000, 9999),
+                Role = "Student", // ✅ Added Role
+                MembershipPoints = _random.Next(30, 1401)
+            }).ToList();
 
             await context.Students.AddRangeAsync(students);
             await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {students.Count} students");
+            Console.WriteLine($"✅ Seeded {students.Count} Vietnamese students");
 
-            // Seed Faculty Members
-            var faculty = new List<FacultyMember>
+            // -----------------------------------------
+            // 📚 SEED 4 VIETNAMESE LIBRARIANS
+            // -----------------------------------------
+            Console.WriteLine("📚 Seeding Vietnamese librarians...");
+
+            string[] librarianNames = new[]
             {
-                new FacultyMember
-                {
-                    Username = "prof_smith",
-                    Email = "smith@university.edu",
-                    FacultyId = "F001",
-                    Department = "Computer Science",
-                    MembershipPoints = 800
-                },
-                new FacultyMember
-                {
-                    Username = "prof_jones",
-                    Email = "jones@university.edu",
-                    FacultyId = "F002",
-                    Department = "Mathematics",
-                    MembershipPoints = 1200
-                },
-                new FacultyMember
-                {
-                    Username = "prof_davis",
-                    Email = "davis@university.edu",
-                    FacultyId = "F003",
-                    Department = "Physics",
-                    MembershipPoints = 500
-                }
+                "Nguyen Thanh Ha",
+                "Tran Cong Minh",
+                "Pham Thi Dung",
+                "Le Quoc Trung"
             };
 
-            await context.FacultyMembers.AddRangeAsync(faculty);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {faculty.Count} faculty members");
-
-            // Seed Librarians
-            var librarians = new List<Librarian>
+            var librarians = librarianNames.Select(name => new Librarian
             {
-                new Librarian
-                {
-                    Username = "lib_alice",
-                    Email = "alice@library.edu",
-                    
-                    EmployeeId = "LIB001",
-                },
-                new Librarian
-                {
-                    Username = "lib_bob",
-                    Email = "bob@library.edu",
-                    EmployeeId = "LIB002",
-                }
-            };
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                EmployeeId = "LIB225" + _random.Next(1000, 9999),
+                Role = "Librarian" // ✅ Added Role
+            }).ToList();
 
             await context.Librarians.AddRangeAsync(librarians);
             await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {librarians.Count} librarians");
+            Console.WriteLine($"✅ Seeded {librarians.Count} Vietnamese librarians");
 
-            // Seed Admins
-            var admins = new List<Admin>
+            // -----------------------------------------
+            // 🛡️ SEED 2 VIETNAMESE ADMINS
+            // -----------------------------------------
+            Console.WriteLine("🛡️ Seeding Vietnamese admins...");
+
+            string[] adminNames = new[]
             {
-                new Admin
-                {
-                    Username = "admin",
-                    Email = "admin@library.edu",
-                    AdminId = "ADM001",
-                },
-                new Admin
-                {
-                    Username = "superadmin",
-                    Email = "superadmin@library.edu",
-                    AdminId = "ADM002",
-                }
+                "Admin Nguyen",
+                "Super Admin Tran"
             };
+
+            var admins = adminNames.Select(name => new Admin
+            {
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                AdminId = "ADM225" + _random.Next(1000, 9999),
+                Role = "Admin" // ✅ Added Role
+            }).ToList();
 
             await context.Admins.AddRangeAsync(admins);
             await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {admins.Count} admins");
+            Console.WriteLine($"✅ Seeded {admins.Count} Vietnamese admins");
 
-            Console.WriteLine("✅ Database seeded successfully!");
+            Console.WriteLine("🎉 Database seeded successfully!");
         }
     }
 }

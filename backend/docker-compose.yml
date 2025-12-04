@@ -9,8 +9,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=dpg-d4nsli9r0fns73dirvf0-a.oregon-postgres.render.com;Port=5432;Database=lms_kuuo;Username=lms_kuuo_user;Password=9SHBC4OHLC2jVz0HRbFzqoqfhjU30TJ4;SSL Mode=Require;Trust Server Certificate=true
-    volumes:
+      - ConnectionStrings__DefaultConnection=Host=shuttle.proxy.rlwy.net;Port=32117;Database=railway;Username=postgres;Password=JLefvzDQjbjSUogkYABsYUmrkJdIOyvT
       # Persist database
       - ./data:/app/data
     restart: unless-stopped

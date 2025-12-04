@@ -48,6 +48,29 @@ namespace backend.controllers
             }
         }
 
+        [HttpGet("tiers")]
+        public async Task<ActionResult<ApiResponse<int>>> GetBookTiers(string bookname)
+        {
+            try
+            {
+                var tiers = await   _bookRepository.GetBookTier(bookname);
+                return Ok(new ApiResponse<int>
+                {
+                    Success = true,
+                    Data = tiers,
+                    Message = "Book tiers retrieved successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ApiError
+                {
+                    Error = ex.Message,
+                    Message = "Failed to retrieve book tiers"
+                });
+            }
+        }
+
         // GET: api/book
         [HttpGet]
         public async Task<ActionResult<ApiResponse<IEnumerable<BookModel>>>> GetAllBooks()

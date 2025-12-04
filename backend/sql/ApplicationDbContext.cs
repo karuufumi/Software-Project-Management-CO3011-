@@ -27,7 +27,7 @@ namespace backend.Data
 
             // Configure UserModel inheritance (TPH - Table Per Hierarchy)
             modelBuilder.Entity<UserModel>()
-                .HasDiscriminator<string>("UserType")
+                .HasDiscriminator<string>("Role")
                 .HasValue<Student>("Student")
                 .HasValue<FacultyMember>("Faculty")
                 .HasValue<Librarian>("Librarian")

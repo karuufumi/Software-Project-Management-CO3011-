@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251204070528_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251204131254_InitialCreateWithVietnameseData")]
+    partial class InitialCreateWithVietnameseData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,9 @@ namespace backend.Migrations
 
                     b.Property<DateTime>("PublishedDate")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("Tier")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -175,10 +178,6 @@ namespace backend.Migrations
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserType")
-                        .IsRequired()
                         .HasMaxLength(13)
                         .HasColumnType("character varying(13)");
 
@@ -196,7 +195,7 @@ namespace backend.Migrations
 
                     b.ToTable("Users");
 
-                    b.HasDiscriminator<string>("UserType").HasValue("UserModel");
+                    b.HasDiscriminator<string>("Role").HasValue("UserModel");
 
                     b.UseTphMappingStrategy();
                 });
