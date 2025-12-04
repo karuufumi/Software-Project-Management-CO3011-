@@ -17,9 +17,7 @@ namespace backend.Data
 
             Console.WriteLine("📚 Seeding books...");
 
-            // --------------------------------------------------------
-            // BOOK LIST (Original + New + Extra + Added 3 more)
-            // --------------------------------------------------------
+            // Seed Books
             var books = new List<BookModel>
             {
                 new BookModel
@@ -121,152 +119,6 @@ namespace backend.Data
                     TotalCopies = 4,
                     AvailableCopies = 4,
                     Description = "A satirical allegory of Soviet totalitarianism."
-                },
-
-                // Your Added Books
-                new BookModel
-                {
-                    Title = "Principles of Programming Languages",
-                    Author = "Michael L. Scott",
-                    ISBN = "978-0131486814",
-                    Genre = "Computer Science",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "A comprehensive introduction to programming language theory."
-                },
-                new BookModel
-                {
-                    Title = "Probability and Statistics",
-                    Author = "Morris H. DeGroot",
-                    ISBN = "978-0321500465",
-                    Genre = "Mathematics",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "A foundational text on probability theory and statistics."
-                },
-                new BookModel
-                {
-                    Title = "Calculus",
-                    Author = "James Stewart",
-                    ISBN = "978-1285740621",
-                    Genre = "Mathematics",
-                    TotalCopies = 5,
-                    AvailableCopies = 5,
-                    Description = "A standard university-level calculus textbook."
-                },
-                new BookModel
-                {
-                    Title = "Software Engineering",
-                    Author = "Ian Sommerville",
-                    ISBN = "978-0137035153",
-                    Genre = "Computer Science",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "A widely used textbook on software engineering principles."
-                },
-                new BookModel
-                {
-                    Title = "Naruto Vol.1",
-                    Author = "Masashi Kishimoto",
-                    ISBN = "978-1569319000",
-                    Genre = "Manga",
-                    TotalCopies = 6,
-                    AvailableCopies = 6,
-                    Description = "The beginning of Naruto Uzumaki's ninja journey."
-                },
-                new BookModel
-                {
-                    Title = "Chainsaw Man Vol.3",
-                    Author = "Tatsuki Fujimoto",
-                    ISBN = "978-1974717276",
-                    Genre = "Manga",
-                    TotalCopies = 6,
-                    AvailableCopies = 6,
-                    Description = "The third installment of the Chainsaw Man manga series."
-                },
-
-                // Extra Random Books
-                new BookModel
-                {
-                    Title = "Introduction to Machine Learning",
-                    Author = "Ethem Alpaydin",
-                    ISBN = "978-0262043793",
-                    Genre = "Machine Learning",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "A structured introduction to machine learning concepts."
-                },
-                new BookModel
-                {
-                    Title = "Database System Concepts",
-                    Author = "Avi Silberschatz",
-                    ISBN = "978-9332901387",
-                    Genre = "Computer Science",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "A core textbook on database systems and SQL."
-                },
-                new BookModel
-                {
-                    Title = "One Piece Vol.1",
-                    Author = "Eiichiro Oda",
-                    ISBN = "978-1569319017",
-                    Genre = "Manga",
-                    TotalCopies = 7,
-                    AvailableCopies = 7,
-                    Description = "The beginning of Monkey D. Luffy's pirate adventure."
-                },
-                new BookModel
-                {
-                    Title = "The Art of War",
-                    Author = "Sun Tzu",
-                    ISBN = "978-1599869773",
-                    Genre = "Strategy",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "An ancient Chinese military treatise."
-                },
-                new BookModel
-                {
-                    Title = "Clean Code",
-                    Author = "Robert C. Martin",
-                    ISBN = "978-0132350884",
-                    Genre = "Software Engineering",
-                    TotalCopies = 5,
-                    AvailableCopies = 5,
-                    Description = "A handbook of agile software craftsmanship."
-                },
-
-                // 3 More Books You Requested
-                new BookModel
-                {
-                    Title = "Design Patterns",
-                    Author = "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",
-                    ISBN = "978-0201633610",
-                    Genre = "Software Engineering",
-                    TotalCopies = 4,
-                    AvailableCopies = 4,
-                    Description = "Classic reusable solutions in software design."
-                },
-                new BookModel
-                {
-                    Title = "Deep Learning",
-                    Author = "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
-                    ISBN = "978-0262035613",
-                    Genre = "Artificial Intelligence",
-                    TotalCopies = 5,
-                    AvailableCopies = 5,
-                    Description = "Foundational deep learning textbook."
-                },
-                new BookModel
-                {
-                    Title = "Tokyo Ghoul Vol.1",
-                    Author = "Sui Ishida",
-                    ISBN = "978-1421580364",
-                    Genre = "Manga",
-                    TotalCopies = 6,
-                    AvailableCopies = 6,
-                    Description = "The dark beginning of Kaneki Ken's transformation."
                 }
             };
 
@@ -274,108 +126,73 @@ namespace backend.Data
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {books.Count} books");
 
-            // --------------------------------------------------------
-            // 10 Vietnamese Students
-            // --------------------------------------------------------
+            // -----------------------------------------
+            // 🧑‍🎓 SEED 10 VIETNAMESE STUDENTS
+            // -----------------------------------------
             Console.WriteLine("👥 Seeding Vietnamese students...");
 
-            string[] vnStudentNames =
+            string[] vnNames = new[]
             {
                 "Nguyen Van An", "Tran Thi Bich", "Le Hoang Nam", "Pham Minh Khang",
                 "Hoang Gia Bao", "Vo Thi Kim", "Dang Quoc Huy", "Bui Thanh Phuong",
                 "Do Ngoc Lan", "Phan Bao Chau"
             };
 
-            var students = vnStudentNames.Select(name =>
+            var students = vnNames.Select((name, index) => new Student
             {
-                var clean = RemoveVietnameseTones(name).ToLower().Replace(" ", "");
-                return new Student
-                {
-                    Username = clean,
-                    Email = clean + "@student.hcmut.edu.vn",
-                     //= RemoveVietnameseTones(name),
-                    StudentId = "225" + _random.Next(1000, 9999),
-                    MembershipPoints = _random.Next(30, 1401)
-                };
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                StudentId = "225" + _random.Next(1000, 9999),
+                Role = "Student", // ✅ Added Role
+                MembershipPoints = _random.Next(30, 1401)
             }).ToList();
 
             await context.Students.AddRangeAsync(students);
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {students.Count} Vietnamese students");
 
-            // --------------------------------------------------------
-            // Faculty
-            // --------------------------------------------------------
-            Console.WriteLine("👨‍🏫 Seeding Vietnamese faculty members...");
-
-            var facultyData = new[]
-            {
-                new { Name = "TS Nguyen Van Minh", Dept = "Khoa Khoa Hoc May Tinh", FacultyId = "F225001" },
-                new { Name = "PGS Tran Thi Huong", Dept = "Khoa Ky Thuat Dien Tu", FacultyId = "F225002" },
-                new { Name = "GS Le Quoc Tuan", Dept = "Khoa Toan - Tin Hoc", FacultyId = "F225003" }
-            };
-
-            var faculty = facultyData.Select(f =>
-            {
-                var clean = RemoveVietnameseTones(f.Name).ToLower().Replace(" ", "");
-                return new FacultyMember
-                {
-                    Username = clean,
-                    Email = clean + "@hcmut.edu.vn",
-                    FacultyId = f.FacultyId,
-                    Department = f.Dept,
-                    MembershipPoints = _random.Next(500, 1501)
-                };
-            }).ToList();
-
-            await context.FacultyMembers.AddRangeAsync(faculty);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✅ Seeded {faculty.Count} Vietnamese faculty");
-
-            // --------------------------------------------------------
-            // Librarians
-            // --------------------------------------------------------
+            // -----------------------------------------
+            // 📚 SEED 4 VIETNAMESE LIBRARIANS
+            // -----------------------------------------
             Console.WriteLine("📚 Seeding Vietnamese librarians...");
 
-            string[] librarianNames =
+            string[] librarianNames = new[]
             {
-                "Nguyen Thanh Ha", "Tran Cong Minh",
-                "Pham Thi Dung", "Le Quoc Trung"
+                "Nguyen Thanh Ha",
+                "Tran Cong Minh",
+                "Pham Thi Dung",
+                "Le Quoc Trung"
             };
 
-            var librarians = librarianNames.Select(name =>
+            var librarians = librarianNames.Select(name => new Librarian
             {
-                var clean = RemoveVietnameseTones(name).ToLower().Replace(" ", "");
-                return new Librarian
-                {
-                    Username = clean,
-                    Email = clean + "@lib.hcmut.edu.vn",
-                    //FullName = RemoveVietnameseTones(name),
-                    EmployeeId = "LIB225" + _random.Next(1000, 9999)
-                };
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                EmployeeId = "LIB225" + _random.Next(1000, 9999),
+                Role = "Librarian" // ✅ Added Role
             }).ToList();
 
             await context.Librarians.AddRangeAsync(librarians);
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Seeded {librarians.Count} Vietnamese librarians");
 
-            // --------------------------------------------------------
-            // Admins
-            // --------------------------------------------------------
+            // -----------------------------------------
+            // 🛡️ SEED 2 VIETNAMESE ADMINS
+            // -----------------------------------------
             Console.WriteLine("🛡️ Seeding Vietnamese admins...");
 
-            var adminData = new[]
+            string[] adminNames = new[]
             {
-                new { Name = "Quan Tri Vien Nguyen", Username = "admin_nguyen", AdminId = "ADM225001" },
-                new { Name = "Sieu Quan Tri Tran", Username = "superadmin_tran", AdminId = "ADM225002" }
+                "Admin Nguyen",
+                "Super Admin Tran"
             };
 
-            var admins = adminData.Select(a => new Admin
+            var admins = adminNames.Select(name => new Admin
             {
-                Username = a.Username,
-                Email = a.Username + "@admin.hcmut.edu.vn",
-                //FullName = RemoveVietnameseTones(a.Name),
-                AdminId = a.AdminId
+                Username = name.ToLower().Replace(" ", "_"),
+                Email = name.ToLower().Replace(" ", "") + "@gmail.com",
+                AdminId = "ADM225" + _random.Next(1000, 9999),
+                Role = "Admin" // ✅ Added Role
             }).ToList();
 
             await context.Admins.AddRangeAsync(admins);
@@ -383,45 +200,6 @@ namespace backend.Data
             Console.WriteLine($"✅ Seeded {admins.Count} Vietnamese admins");
 
             Console.WriteLine("🎉 Database seeded successfully!");
-        }
-
-        // --------------------------------------------------------
-        // Helper - Remove Vietnamese tones from names/emails
-        // --------------------------------------------------------
-        private static string RemoveVietnameseTones(string text)
-        {
-            string[] vietChars =
-            {
-                "àáạảãâầấậẩẫăằắặẳẵ",
-                "èéẹẻẽêềếệểễ",
-                "ìíịỉĩ",
-                "òóọỏõôồốộổỗơờớợởỡ",
-                "ùúụủũưừứựửữ",
-                "ỳýỵỷỹ",
-                "đ",
-                "ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ",
-                "ÈÉẸẺẼÊỀẾỆỂỄ",
-                "ÌÍỊỈĨ",
-                "ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ",
-                "ÙÚỤỦŨƯỪỨỰỬỮ",
-                "ỲÝỴỶỸ",
-                "Đ"
-            };
-
-            string[] replaceChars =
-            {
-                "a","e","i","o","u","y","d","A","E","I","O","U","Y","D"
-            };
-
-            for (int i = 0; i < vietChars.Length; i++)
-            {
-                foreach (char c in vietChars[i])
-                {
-                    text = text.Replace(c, replaceChars[i][0]);
-                }
-            }
-
-            return text;
         }
     }
 }
