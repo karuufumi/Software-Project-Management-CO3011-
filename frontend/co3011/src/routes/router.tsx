@@ -148,7 +148,7 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: `${rootPaths.libRoot}/books`,
+        path: `${rootPaths.libRoot}/book`,
         children: [
           {
             index: true,
