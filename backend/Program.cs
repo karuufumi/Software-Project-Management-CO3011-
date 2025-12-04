@@ -9,16 +9,52 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ✅ ADD CORS POLICY
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+    
+    // Or for production, specify exact origins:
+    options.AddPolicy("Production", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",           // React dev
+                "http://localhost:5173",           // Vite dev
+                "https://your-frontend.vercel.app" // Production frontend
+              )
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 // PostgreSQL configuration
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Get connection string from environment or config
-var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+// Get connection string - Railway provides DATABASE_URL
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") // Railway
+    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection") // Render
+    ?? builder.Configuration.GetConnectionString("DefaultConnection"); // Local
+
+// Railway connection string needs to be converted from postgres:// to PostgreSQL format
+if (!string.IsNullOrWhiteSpace(connectionString) && connectionString.StartsWith("postgres://"))
+{
+    var uri = new Uri(connectionString);
+    var userInfo = uri.UserInfo.Split(':');
+    
+    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+    
+    Console.WriteLine("✅ Railway DATABASE_URL converted to Npgsql format");
+}
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    throw new InvalidOperationException("Database connection string is required");
+    throw new InvalidOperationException("Database connection string is required. Set DATABASE_URL environment variable.");
 }
 
 // Configure DbContext
@@ -41,6 +77,16 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
+        Console.WriteLine("🔄 Connecting to Railway PostgreSQL...");
+        var canConnect = await context.Database.CanConnectAsync();
+        
+        if (!canConnect)
+        {
+            Console.WriteLine("❌ Cannot connect to database");
+            throw new Exception("Database connection failed");
+        }
+        
+        Console.WriteLine("✅ Database connected");
         Console.WriteLine("🔄 Applying migrations...");
         await context.Database.MigrateAsync();
         Console.WriteLine("✅ Migrations applied");
@@ -51,13 +97,19 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"⚠️ Database setup: {ex.Message}");
+        Console.WriteLine($"⚠️ Database setup error: {ex.Message}");
+        Console.WriteLine($"📋 Stack trace: {ex.StackTrace}");
+        
         if (ex.Message.Contains("already exists"))
         {
+            Console.WriteLine("ℹ️ Tables already exist, attempting to seed...");
             try { await DbSeeder.SeedDatabase(context); } catch { }
         }
     }
 }
+
+// ✅ USE CORS - MUST BE BEFORE UseAuthorization()
+app.UseCors("AllowAll"); // Use "Production" in production environment
 
 // Configure middleware
 app.UseSwagger();
@@ -129,67 +181,14 @@ app.MapGet("/", () => Results.Content(@"
             font-size: 1.1em;
             margin-bottom: 30px;
         }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .info-card {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-        .info-label {
-            color: #6b7280;
+        .cors-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
             font-size: 0.85em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .info-value {
-            color: #1f2937;
-            font-size: 1.1em;
-            font-weight: 700;
-            margin-top: 5px;
-        }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section-title {
-            color: #1f2937;
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e5e7eb;
-        }
-        .endpoints {
-            display: grid;
-            gap: 10px;
-        }
-        .endpoint {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        .endpoint:hover {
-            background: #f3f4f6;
-            transform: translateX(5px);
-        }
-        .endpoint-path {
-            font-family: 'Courier New', monospace;
-            color: #667eea;
-            font-weight: 600;
-        }
-        .endpoint-desc {
-            color: #6b7280;
-            font-size: 0.9em;
+            margin-left: 10px;
         }
         .btn {
             display: inline-block;
@@ -206,14 +205,6 @@ app.MapGet("/", () => Results.Content(@"
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #e5e7eb;
-            text-align: center;
-            color: #6b7280;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
@@ -222,86 +213,11 @@ app.MapGet("/", () => Results.Content(@"
             📚 Library Management System
             <span class='status'>● Live</span>
         </h1>
-        <p class='subtitle'>RESTful API for managing library operations, books, users, and borrowing system</p>
-        
-        <div class='info-grid'>
-            <div class='info-card'>
-                <div class='info-label'>Version</div>
-                <div class='info-value'>1.0.0</div>
-            </div>
-            <div class='info-card'>
-                <div class='info-label'>Database</div>
-                <div class='info-value'>PostgreSQL</div>
-            </div>
-            <div class='info-card'>
-                <div class='info-label'>Environment</div>
-                <div class='info-value'>Production</div>
-            </div>
-            <div class='info-card'>
-                <div class='info-label'>Framework</div>
-                <div class='info-value'>.NET 8</div>
-            </div>
-        </div>
-
-        <div class='section'>
-            <div class='section-title'>📖 Documentation</div>
-            <a href='/swagger' class='btn'>🚀 Open Swagger UI</a>
-        </div>
-
-        <div class='section'>
-            <div class='section-title'>🔗 API Endpoints</div>
-            <div class='endpoints'>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/book</span>
-                    <span class='endpoint-desc'>Books management</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/user</span>
-                    <span class='endpoint-desc'>User management</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/user/students</span>
-                    <span class='endpoint-desc'>Student users</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/user/faculty</span>
-                    <span class='endpoint-desc'>Faculty members</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/user/librarians</span>
-                    <span class='endpoint-desc'>Librarian accounts</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/user/admins</span>
-                    <span class='endpoint-desc'>Administrator accounts</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/borrow</span>
-                    <span class='endpoint-desc'>Borrowing operations</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/queue</span>
-                    <span class='endpoint-desc'>Book reservation queue</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/membership</span>
-                    <span class='endpoint-desc'>Membership management</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/api/dashboard</span>
-                    <span class='endpoint-desc'>Dashboard statistics</span>
-                </div>
-                <div class='endpoint'>
-                    <span class='endpoint-path'>/health</span>
-                    <span class='endpoint-desc'>Health check</span>
-                </div>
-            </div>
-        </div>
-
-        <div class='footer'>
-            <p>🎓 Software Project Management CO3011</p>
-            <p>Built with ASP.NET Core & PostgreSQL</p>
-        </div>
+        <p class='subtitle'>
+            RESTful API for managing library operations
+            <span class='cors-badge'>✓ CORS Enabled</span>
+        </p>
+        <a href='/swagger' class='btn'>🚀 Open API Documentation</a>
     </div>
 </body>
 </html>
@@ -317,18 +233,14 @@ app.MapGet("/health", async (ApplicationDbContext context) =>
         return Results.Json(new
         {
             status = canConnect ? "healthy" : "unhealthy",
+            cors = "enabled",
             database = new
             {
                 connected = canConnect,
                 type = "PostgreSQL",
-                provider = "Npgsql"
+                provider = "Railway"
             },
-            application = new
-            {
-                version = "1.0.0",
-                environment = app.Environment.EnvironmentName,
-                timestamp = DateTime.UtcNow
-            }
+            timestamp = DateTime.UtcNow
         });
     }
     catch (Exception ex)
@@ -342,9 +254,13 @@ app.MapGet("/health", async (ApplicationDbContext context) =>
     }
 });
 
+Console.WriteLine("========================================");
 Console.WriteLine("✅ Application started successfully!");
 Console.WriteLine($"📍 Environment: {app.Environment.EnvironmentName}");
-Console.WriteLine($"📍 Database: PostgreSQL");
+Console.WriteLine($"📍 Database: Railway PostgreSQL");
+Console.WriteLine($"🌐 CORS: Enabled (AllowAll)");
 Console.WriteLine($"📍 Swagger: /swagger");
+Console.WriteLine($"📍 Health: /health");
+Console.WriteLine("========================================");
 
 app.Run();
