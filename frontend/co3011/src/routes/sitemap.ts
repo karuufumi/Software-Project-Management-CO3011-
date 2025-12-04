@@ -82,18 +82,7 @@ const sitemap: SidebarItem[] = [
     role: "admin",
     icon: createElement(TrendingUp),
   },
-  {
-    label: "Member Management",
-    path: paths.ADMIN.MEMBER_MANAGEMENT,
-    role: "admin",
-    icon: createElement(User),
-  },
-  {
-    label: "Report & analytic",
-    path: paths.ADMIN.REPORT_AND_ANALYTIC,
-    role: "admin",
-    icon: createElement(ChartNoAxesColumn),
-  },
+ 
 ];
 
 export default sitemap;

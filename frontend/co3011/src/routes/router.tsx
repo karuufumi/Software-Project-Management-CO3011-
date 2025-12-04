@@ -11,25 +11,16 @@ import { BookContributor } from "../pages/user/BookContributor";
 import { BookDetail } from "../pages/user/BookDetail/index";
 import { MemberDashboard } from "../pages/user/Dashboard";
 import { History } from "../pages/user/History";
-// <<<<<<< Login
-// import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
-// import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
-// import Rankmap from "../pages/user/Rankmap/index";
-// import UserProfile from "../pages/user/UserProfile";
-// import paths, { rootPaths } from "./paths";
-// =======
 import { LibrarianLayout } from "../layout/LibrarianLayout";
 import GeneralBooks  from "../pages/librarian/Dashboard";
 import paths, { rootPaths } from "./paths";
 import PointLeaderboardPage from "../pages/user/pointLeaderboard/index";
 import Rankmap from "../pages/user/Rankmap/index";
 import UserProfile from "../pages/user/UserProfile";
-
 import LibrarianBookDetailx from "../pages/librarian/Details";
 import LibrarianAppx from "../pages/librarian/BetterDashboard";
 import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
 import MissingBookHandler from "../pages/librarian/MissingBookHandler";
-
 
 const router = createBrowserRouter([
   {
@@ -44,7 +35,7 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-             element: <Login />, 
+            element: <Login />, 
           },
         ],
       },
@@ -75,34 +66,6 @@ const router = createBrowserRouter([
               </MainLayout>
             ),
           },
-         {
-  path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
-  element: (
-    <MainLayout navFocusedElem="library catalog">
-      <UserLibraryCatalog />
-    </MainLayout>
-  ),
-},
-{
-  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/book/:bookid`,
-  element: (
-    <MainLayout navFocusedElem="library catalog">
-      <BookDetail />
-    </MainLayout>
-  ),
-},
-
-{
-  path: `${paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, "")}/contribute`,
-  element: (
-    <MainLayout navFocusedElem="library catalog">
-      <BookContributor />
-    </MainLayout>
-  ),
-},
-
-
-
           {
             path: paths.USER.LIBRARY_CATALOG.replace(rootPaths.userRoot, ""),
             element: (
@@ -179,7 +142,7 @@ const router = createBrowserRouter([
           },
         ]
       },
-            {
+      {
         path: `${rootPaths.libRoot}`,
         children: [
           {

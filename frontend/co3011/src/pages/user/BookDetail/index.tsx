@@ -1,27 +1,27 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "./button";
-import { booksData } from "../../user/booksData"; 
 import "./BookDetail.css";
 
 type Book = {
-  bookid: number;
+  bookId: string;
   title: string;
   author?: string;
-  publishedYear?: string;
-  publisher?: string;
-  availableCopy?: number;
-  rarity?: string;
-  genre?: string[];
+  tier?: number;
+  isbn?: string;
+  genre?: string;
+  publishedDate?: string;
+  totalCopies?: number;
+  availableCopies?: number;
   description?: string;
-  image: string;
-  addedDate?: string;
-  time?: string;
+  borrowRecords?: unknown;
 };
 
 export function BookDetail() {
   const { bookid } = useParams<{ bookid: string }>(); 
-  const [book, setBook] = useState<Book | null>(null); 
+  const [book, setBook] = useState<Book | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString("en-GB"); 
@@ -31,41 +31,49 @@ export function BookDetail() {
   });
 
   useEffect(() => {
-    if (bookid) {
-      //  Simulate fetching from API using local mock data
-      //    In a real app, this would be an API call like:
-      /*
-      fetch(`/api/books/${bookid}`)
-        .then((res) => res.json())
-        .then((data) => setBook(data));
-      */
+    const fetchBookDetails = async () => {
+      if (!bookid) return;
 
-      //  For now, use mock data from booksData (used in catalog)
-      const allBooks = Object.values(booksData).flat(); // combine all categories
-      const foundBook = allBooks.find(
-        (b) => b.bookid === Number(bookid)
-      ) as Book | undefined;
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `https://lms-server-nc7w.onrender.com/api/Book/${bookid}`,
+          {
+            method: "GET",
+            headers: {
+              "accept": "text/plain",
+            },
+          }
+        );
 
-      //  Apply fallback info for missing fields
-      if (foundBook) {
-        setBook({
-          author: "Unknown Author",
-          publishedYear: "N/A",
-          publisher: "N/A",
-          availableCopy: 10,
-          rarity: "Common",
-          genre: ["General"],
-          description: "No detailed description available.",
-          addedDate: formattedDate,
-          time: formattedTime,
-          ...foundBook, // merge with actual mock data
-        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch book details");
+        }
+
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setBook(data.data);
+        } else {
+          setError("Book not found");
+        }
+      } catch (err) {
+        setError("Error loading book details");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchBookDetails();
   }, [bookid]);
 
-  if (!book) {
+  if (loading) {
     return <p>Loading book details...</p>;
+  }
+
+  if (error || !book) {
+    return <p>{error || "Book not found"}</p>;
   }
 
   return (
@@ -73,39 +81,44 @@ export function BookDetail() {
       <h1 className="book-detail-title">Book Detail</h1>
 
       <div className="book-detail-date">
-        <span>📅 {book.addedDate}</span>
-        <span>🕘 {book.time}</span>
+        <span>📅 {formattedDate}</span>
+        <span>🕘 {formattedTime}</span>
       </div>
 
       <div className="book-detail-content">
         <div className="book-left">
           <img
-            src={book.image}
+            src="/vite.svg"
             alt={book.title}
             className="book-cover"
           />
 
           <Button className="btn-borrow">Borrow</Button>
-
           <Button className="btn-queue">Add to Borrow Queue</Button>
         </div>
 
         <div className="book-right">
           <div className="book-info-grid">
             <div className="book-info-box">
-              <strong>Author:</strong> {book.author}
+              <strong>Title:</strong> {book.title}
             </div>
             <div className="book-info-box">
-              <strong>Published Year:</strong> {book.publishedYear}
+              <strong>Author:</strong> {book.author || "Unknown"}
             </div>
             <div className="book-info-box">
-              <strong>Publisher:</strong> {book.publisher}
+              <strong>ISBN:</strong> {book.isbn || "N/A"}
             </div>
             <div className="book-info-box">
-              <strong>Available Copy:</strong> {book.availableCopy}
+              <strong>Published Date:</strong> {book.publishedDate ? new Date(book.publishedDate).toLocaleDateString() : "N/A"}
             </div>
             <div className="book-info-box">
-              <strong>Rarity:</strong> {book.rarity}
+              <strong>Available Copies:</strong> {book.availableCopies || 0}
+            </div>
+            <div className="book-info-box">
+              <strong>Total Copies:</strong> {book.totalCopies || 0}
+            </div>
+            <div className="book-info-box">
+              <strong>Tier:</strong> {book.tier || "N/A"}
             </div>
           </div>
 
@@ -113,15 +126,13 @@ export function BookDetail() {
             <div className="book-genre">
               <h3>Genre</h3>
               <div className="genre-tags">
-                {book.genre?.map((g) => (
-                  <span key={g} className="genre-tag">{g}</span>
-                ))}
+                <span className="genre-tag">{book.genre || "General"}</span>
               </div>
             </div>
 
             <div className="book-description">
               <h3>Description</h3>
-              <p>{book.description}</p>
+              <p>{book.description || "No description available."}</p>
             </div>
           </div>
         </div>

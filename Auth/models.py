@@ -5,8 +5,7 @@ from typing import Optional
 class Role(str, Enum):
     ADMIN = "admin"
     USER = "user"
-    GUEST = "guest"
-    MEMB = "member"
+    LIB = "librarian"
 
 class User(BaseModel):
     id: str

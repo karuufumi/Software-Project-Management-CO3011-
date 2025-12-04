@@ -3,6 +3,7 @@ import Button from "../components/button/button";
 import { navFocused } from "../data/navbarListData";
 import type { PropsWithChildren } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 interface MainLayoutProps extends PropsWithChildren {
   navFocusedElem?: string;
@@ -11,6 +12,13 @@ interface MainLayoutProps extends PropsWithChildren {
 export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
   const itemsNav = navFocused("user", navFocusedElem);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div style={{ display: "flex", minHeight: "100vh" }}>
       {/* Sidebar */}
@@ -20,21 +28,21 @@ export function MainLayout({ navFocusedElem = "", children }: MainLayoutProps) {
         footer={
           <div className="sidebar-footer">
             <div className="profile-card">
-              <div style={{ fontWeight: 600 }}>Adoft Hitless</div>
+              <div style={{ fontWeight: 600 }}>{user?.name || "User"}</div>
               <div
                 style={{
                   fontSize: "12px",
                   color: "var(--color-text-secondary)",
                 }}
               >
-                adoft.hitless@hcmut.edu.vn
+                {user?.email || "user@example.com"}
               </div>
             </div>
             <Button
               label="Log out"
               color="var(--color-danger)"
               roundness={10}
-              onClick={() => navigate("/login")}
+              onClick={handleLogout}
             />
           </div>
         }
