@@ -15,15 +15,15 @@ namespace backend.Migrations
                 name: "Books",
                 columns: table => new
                 {
-                    BookId = table.Column<string>(type: "TEXT", nullable: false),
-                    Title = table.Column<string>(type: "TEXT", nullable: false),
-                    Author = table.Column<string>(type: "TEXT", nullable: false),
-                    ISBN = table.Column<string>(type: "TEXT", nullable: false),
-                    Genre = table.Column<string>(type: "TEXT", nullable: false),
-                    PublishedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    TotalCopies = table.Column<int>(type: "INTEGER", nullable: false),
-                    AvailableCopies = table.Column<int>(type: "INTEGER", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true)
+                    BookId = table.Column<string>(type: "text", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Author = table.Column<string>(type: "text", nullable: false),
+                    ISBN = table.Column<string>(type: "text", nullable: false),
+                    Genre = table.Column<string>(type: "text", nullable: false),
+                    PublishedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    TotalCopies = table.Column<int>(type: "integer", nullable: false),
+                    AvailableCopies = table.Column<int>(type: "integer", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -34,26 +34,26 @@ namespace backend.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    Password = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UserType = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
-                    AdminId = table.Column<string>(type: "TEXT", nullable: true),
-                    AccessLevel = table.Column<string>(type: "TEXT", nullable: true),
-                    LastLogin = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    FacultyId = table.Column<string>(type: "TEXT", nullable: true),
-                    FacultyMember_MembershipPoints = table.Column<int>(type: "INTEGER", nullable: true),
-                    Department = table.Column<string>(type: "TEXT", nullable: true),
-                    Position = table.Column<string>(type: "TEXT", nullable: true),
-                    EmployeeId = table.Column<string>(type: "TEXT", nullable: true),
-                    HireDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    StudentId = table.Column<string>(type: "TEXT", nullable: true),
-                    MembershipPoints = table.Column<int>(type: "INTEGER", nullable: true),
-                    Major = table.Column<string>(type: "TEXT", nullable: true),
-                    Year = table.Column<int>(type: "INTEGER", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    Role = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    UserType = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    AdminId = table.Column<string>(type: "text", nullable: true),
+                    AccessLevel = table.Column<string>(type: "text", nullable: true),
+                    LastLogin = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    FacultyId = table.Column<string>(type: "text", nullable: true),
+                    FacultyMember_MembershipPoints = table.Column<int>(type: "integer", nullable: true),
+                    Department = table.Column<string>(type: "text", nullable: true),
+                    Position = table.Column<string>(type: "text", nullable: true),
+                    EmployeeId = table.Column<string>(type: "text", nullable: true),
+                    HireDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    StudentId = table.Column<string>(type: "text", nullable: true),
+                    MembershipPoints = table.Column<int>(type: "integer", nullable: true),
+                    Major = table.Column<string>(type: "text", nullable: true),
+                    Year = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,8 +64,8 @@ namespace backend.Migrations
                 name: "BookQueues",
                 columns: table => new
                 {
-                    QueueId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    QueueId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -82,13 +82,13 @@ namespace backend.Migrations
                 name: "BorrowRecords",
                 columns: table => new
                 {
-                    BorrowId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    BookId = table.Column<string>(type: "TEXT", nullable: false),
-                    BorrowDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    ReturnDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    IsReturned = table.Column<bool>(type: "INTEGER", nullable: false)
+                    BorrowId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    BookId = table.Column<string>(type: "text", nullable: false),
+                    BorrowDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    ReturnDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    IsReturned = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,12 +111,12 @@ namespace backend.Migrations
                 name: "Memberships",
                 columns: table => new
                 {
-                    MembershipId = table.Column<string>(type: "TEXT", nullable: false),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    Points = table.Column<int>(type: "INTEGER", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    LastUpdated = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    MembershipId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Points = table.Column<int>(type: "integer", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -133,8 +133,8 @@ namespace backend.Migrations
                 name: "QueuedBookItems",
                 columns: table => new
                 {
-                    BookQueueQueueId = table.Column<string>(type: "TEXT", nullable: false),
-                    QueuedBooksBookId = table.Column<string>(type: "TEXT", nullable: false)
+                    BookQueueQueueId = table.Column<string>(type: "text", nullable: false),
+                    QueuedBooksBookId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

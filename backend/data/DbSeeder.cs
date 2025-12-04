@@ -7,14 +7,14 @@ namespace backend.Data
     {
         public static async Task SeedDatabase(ApplicationDbContext context)
         {
-            // Ensure database is created
-            await context.Database.EnsureCreatedAsync();
-
             // Check if data already exists
             if (await context.Books.AnyAsync())
             {
-                return; // Database already seeded
+                Console.WriteLine("✅ Database already seeded!");
+                return;
             }
+
+            Console.WriteLine("📚 Seeding books...");
 
             // Seed Books
             var books = new List<BookModel>
@@ -122,6 +122,10 @@ namespace backend.Data
             };
 
             await context.Books.AddRangeAsync(books);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {books.Count} books");
+
+            Console.WriteLine("👥 Seeding users...");
 
             // Seed Students
             var students = new List<Student>
@@ -173,6 +177,8 @@ namespace backend.Data
             };
 
             await context.Students.AddRangeAsync(students);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {students.Count} students");
 
             // Seed Faculty Members
             var faculty = new List<FacultyMember>
@@ -202,8 +208,10 @@ namespace backend.Data
             };
 
             await context.FacultyMembers.AddRangeAsync(faculty);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {faculty.Count} faculty members");
 
-            // Seed Librarians
+            // Seed Librarians - Fix DateTime for PostgreSQL
             var librarians = new List<Librarian>
             {
                 new Librarian
@@ -213,7 +221,7 @@ namespace backend.Data
                     Password = "password123",
                     Role = "Librarian",
                     EmployeeId = "LIB001",
-                    HireDate = new DateTime(2020, 1, 15)
+                    HireDate = DateTime.SpecifyKind(new DateTime(2020, 1, 15), DateTimeKind.Utc)
                 },
                 new Librarian
                 {
@@ -222,11 +230,13 @@ namespace backend.Data
                     Password = "password123",
                     Role = "Librarian",
                     EmployeeId = "LIB002",
-                    HireDate = new DateTime(2021, 6, 1)
+                    HireDate = DateTime.SpecifyKind(new DateTime(2021, 6, 1), DateTimeKind.Utc)
                 }
             };
 
             await context.Librarians.AddRangeAsync(librarians);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {librarians.Count} librarians");
 
             // Seed Admins
             var admins = new List<Admin>
@@ -244,9 +254,10 @@ namespace backend.Data
             };
 
             await context.Admins.AddRangeAsync(admins);
-
-            // Save all users first
             await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {admins.Count} admins");
+
+            Console.WriteLine("🎫 Seeding memberships...");
 
             // Seed Memberships for Students and Faculty
             var memberships = new List<Membership>();
@@ -273,6 +284,7 @@ namespace backend.Data
 
             await context.Memberships.AddRangeAsync(memberships);
             await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Seeded {memberships.Count} memberships");
 
             Console.WriteLine("✅ Database seeded successfully!");
         }
