@@ -9,7 +9,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Data Source=/app/data/library.db
+      - ConnectionStrings__DefaultConnection=postgresql://lms_kuuo_user:9SHBC4OHLC2jVz0HRbFzqoqfhjU30TJ4@dpg-d4nsli9r0fns73dirvf0-a/lms_kuuo
     volumes:
       # Persist database
       - ./data:/app/data
