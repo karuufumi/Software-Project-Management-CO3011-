@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import type { AuthResponse } from "../../types/user";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  //const [totpCode, setTotpCode] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,20 +29,40 @@ export default function Login() {
           body: JSON.stringify({
             email,
             password,
-            //totp_code: totpCode,
           }),
         }
       );
 
-      const data = await response.json();
+      const data: AuthResponse = await response.json();
 
       if (response.ok) {
-        // Store authentication token if returned
-        if (data.token) {
-          localStorage.setItem("token", data.token);
+        // Save user data using AuthContext
+        login(data.token, data.user);
+        
+        // Show success message in console
+        console.log(`✅ Welcome ${data.user.name}! Redirecting to ${data.user.role} dashboard...`);
+        
+        // Check if user was trying to access a specific route before login
+        const intendedRoute = localStorage.getItem("intendedRoute");
+        
+        if (intendedRoute) {
+          // Redirect to the page they were trying to access
+          localStorage.removeItem("intendedRoute");
+          console.log(`📍 Redirecting to intended route: ${intendedRoute}`);
+          navigate(intendedRoute);
+        } else {
+          // Role-based routing map
+          const roleRoutes: Record<string, string> = {
+            admin: "/admin",
+            librarian: "/librarian",
+            user: "/user",
+          };
+          
+          const targetRoute = roleRoutes[data.user.role] || "/user";
+          console.log(`🎯 Redirecting to role-based route: ${targetRoute}`);
+          navigate(targetRoute);
         }
-        localStorage.setItem("loggedIn", "true");
-        navigate("/");
+        
       } else {
         setError(data.message || "Incorrect email or password");
       }
@@ -84,7 +106,7 @@ export default function Login() {
           </span>
         </div>
 
-                <div className="forgot">Forgot Password?</div>
+        <div className="forgot">Forgot Password?</div>
 
         <button type="submit" className="login-btn" disabled={loading}>
           {loading ? "Logging in..." : "Login"}

@@ -1,9 +1,9 @@
 export const rootPaths = {
-  userRoot: "/",
+  userRoot: "/user",
   libRoot: "/librarian",
   authRoot: "/authentication",
   adminRoot: "/admin",
-  guestRoot: "/guest", 
+  guestRoot: "/", 
 };
 
 export default {
