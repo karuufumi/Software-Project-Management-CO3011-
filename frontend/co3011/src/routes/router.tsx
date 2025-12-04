@@ -29,6 +29,8 @@ import LibrarianBookDetailx from "../pages/librarian/Details";
 import LibrarianAppx from "../pages/librarian/BetterDashboard";
 import { UserLibraryCatalog } from "../pages/user/LibraryCatalog";
 import MissingBookHandler from "../pages/librarian/MissingBookHandler";
+import AdminIntro from "../pages/admin/Admin_info";
+import MemberList from "../pages/admin/Memberlist";
 
 
 const router = createBrowserRouter([
@@ -213,6 +215,32 @@ const router = createBrowserRouter([
             element: (
               <AdminLayout navFocusedElem="dashboard">
                 <AdminDashboard />
+              </AdminLayout>
+            ),
+          },
+        ],
+      },
+            {
+        path: `${rootPaths.adminRoot}/members`,
+        children: [
+          {
+            index: true,
+            element: (
+              <AdminLayout navFocusedElem="dashboard">
+                <MemberList />
+              </AdminLayout>
+            ),
+          },
+        ],
+      },
+      {
+        path: `${rootPaths.adminRoot}/info`,
+        children: [
+          {
+            index: true,
+            element: (
+              <AdminLayout navFocusedElem="dashboard">
+                <AdminIntro />
               </AdminLayout>
             ),
           },
