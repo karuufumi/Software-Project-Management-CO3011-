@@ -33,9 +33,36 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
-        Console.WriteLine("🔄 Applying migrations...");
-        await context.Database.MigrateAsync();
-        Console.WriteLine("✅ Migrations applied!");
+        Console.WriteLine("🔄 Checking database...");
+        
+        // Check if database can be connected
+        var canConnect = await context.Database.CanConnectAsync();
+        
+        if (canConnect)
+        {
+            Console.WriteLine("✅ Database connection successful!");
+            
+            // Get pending migrations
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            
+            if (pendingMigrations.Any())
+            {
+                Console.WriteLine($"📋 Found {pendingMigrations.Count()} pending migration(s)");
+                Console.WriteLine("🔄 Applying migrations...");
+                await context.Database.MigrateAsync();
+                Console.WriteLine("✅ Migrations applied!");
+            }
+            else
+            {
+                Console.WriteLine("✅ Database is up to date (no pending migrations)");
+            }
+        }
+        else
+        {
+            Console.WriteLine("⚠️ Cannot connect to database. Creating database...");
+            await context.Database.EnsureCreatedAsync();
+            Console.WriteLine("✅ Database created!");
+        }
         
         Console.WriteLine("🌱 Seeding database...");
         await DbSeeder.SeedDatabase(context);
@@ -43,8 +70,27 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         Console.WriteLine($"❌ Database error: {ex.Message}");
-        Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
-        throw;
+        
+        // If migration fails due to existing tables, try to continue anyway
+        if (ex.Message.Contains("already exists"))
+        {
+            Console.WriteLine("⚠️ Tables already exist, skipping migration...");
+            Console.WriteLine("🌱 Attempting to seed database...");
+            
+            try
+            {
+                await DbSeeder.SeedDatabase(context);
+            }
+            catch (Exception seedEx)
+            {
+                Console.WriteLine($"⚠️ Seeding error (this is OK if already seeded): {seedEx.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
+            throw;
+        }
     }
 }
 
@@ -68,6 +114,15 @@ app.MapGet("/", () => Results.Json(new
         swagger = "/swagger",
         api = "/api",
         health = "/health"
+    },
+    documentation = new
+    {
+        books = "/api/book",
+        users = "/api/user",
+        borrow = "/api/borrow",
+        queue = "/api/queue",
+        membership = "/api/membership",
+        dashboard = "/api/dashboard"
     }
 }));
 
@@ -82,5 +137,7 @@ app.MapGet("/health", () => Results.Json(new
 Console.WriteLine("\n🚀 Application is running!");
 Console.WriteLine($"📍 Environment: {app.Environment.EnvironmentName}");
 Console.WriteLine($"📍 Database: PostgreSQL");
+Console.WriteLine("📍 Swagger UI: /swagger");
+Console.WriteLine("📍 API Base URL: /api\n");
 
 app.Run();
