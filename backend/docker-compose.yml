@@ -9,8 +9,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres.railway.internal;Port=5432;Database=railway;Username=postgres;Password=IYmDYGOIkvRHVMpMLHBOwIWKHuyOIXNd
-    volumes:
+      - ConnectionStrings__DefaultConnection=Host=trolley.proxy.rlwy.net;Port=32928;Database=railway;Username=postgres;Password=IYmDYGOIkvRHVMpMLHBOwIWKHuyOIXNd
       # Persist database
       - ./data:/app/data
     restart: unless-stopped
