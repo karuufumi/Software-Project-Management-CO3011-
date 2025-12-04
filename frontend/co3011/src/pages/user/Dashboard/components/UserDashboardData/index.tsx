@@ -33,33 +33,7 @@ export function UserDashboardData() {
         </div>
       </Widget>
 
-      <Widget
-        title="Weekly challenge"
-        alignItems="flex-start"
-        textAlign="start"
-      >
-        <ProgressBar
-          progressTitle="Borrow 1 book"
-          progressValue={1}
-          progressDisplayValue="+15pts"
-          progressValueDescription="1/1"
-          color="rgba(0,0,0,0.25)"
-        />
-        <ProgressBar
-          progressTitle="Borrow 5 book"
-          progressValue={0.6}
-          progressDisplayValue="+40pts"
-          progressValueDescription="3/5"
-          color="rgba(0,0,0,0.25)"
-        />
-        <ProgressBar
-          progressTitle="Online 180 minutes"
-          progressValue={0.5}
-          progressDisplayValue="+50pts"
-          progressValueDescription="90/180"
-          color="rgba(0,0,0,0.25)"
-        />
-      </Widget>
+      
 
       <Widget alignItems="flex-start" textAlign="start">
         <div

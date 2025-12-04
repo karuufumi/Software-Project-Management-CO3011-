@@ -33,7 +33,7 @@ export default {
   },
   ADMIN: {
     DASHBOARD: rootPaths.adminRoot,
-    MEMBER_MANAGEMENT: `${rootPaths.adminRoot}/member`,
-    REPORT_AND_ANALYTIC: `${rootPaths.adminRoot}/report`,
+  //  MEMBER_MANAGEMENT: `${rootPaths.adminRoot}/member`,
+   // REPORT_AND_ANALYTIC: `${rootPaths.adminRoot}/report`,
   },
 };
