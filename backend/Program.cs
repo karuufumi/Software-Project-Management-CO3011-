@@ -2,20 +2,84 @@
 using backend.repository;
 using Microsoft.EntityFrameworkCore;
 
+// FORCE console output to appear
+Console.WriteLine("========================================");
+Console.WriteLine("🚀 APPLICATION STARTING");
+Console.WriteLine("========================================");
+
 var builder = WebApplication.CreateBuilder(args);
+
+Console.WriteLine("✅ Builder created");
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Enable legacy timestamp behavior for PostgreSQL (IMPORTANT!)
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+Console.WriteLine("✅ Services registered");
 
-// Add DbContext with PostgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Enable legacy timestamp behavior for PostgreSQL
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+Console.WriteLine("✅ PostgreSQL legacy timestamp behavior enabled");
+
+// Debug ALL environment variables
+Console.WriteLine("\n🔍 ENVIRONMENT VARIABLES:");
+Console.WriteLine($"ASPNETCORE_ENVIRONMENT = {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}");
+Console.WriteLine($"DOTNET_ENVIRONMENT = {Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}");
+
+// Check connection string from all sources
+var connFromConfig = builder.Configuration.GetConnectionString("DefaultConnection");
+var connFromEnv1 = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+var connFromEnv2 = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+Console.WriteLine($"\n🔍 CONNECTION STRING SOURCES:");
+Console.WriteLine($"1. Config (appsettings.json): {(string.IsNullOrEmpty(connFromConfig) ? "NULL/EMPTY" : "EXISTS (length: " + connFromConfig.Length + ")")}");
+Console.WriteLine($"2. Env (ConnectionStrings__DefaultConnection): {(string.IsNullOrEmpty(connFromEnv1) ? "NULL/EMPTY" : "EXISTS (length: " + connFromEnv1.Length + ")")}");
+Console.WriteLine($"3. Env (DATABASE_URL): {(string.IsNullOrEmpty(connFromEnv2) ? "NULL/EMPTY" : "EXISTS (length: " + connFromEnv2.Length + ")")}");
+
+// Try all sources
+string? connectionString = null;
+
+if (!string.IsNullOrWhiteSpace(connFromEnv1))
+{
+    connectionString = connFromEnv1;
+    Console.WriteLine("✅ Using ConnectionStrings__DefaultConnection");
+}
+else if (!string.IsNullOrWhiteSpace(connFromEnv2))
+{
+    connectionString = connFromEnv2;
+    Console.WriteLine("✅ Using DATABASE_URL");
+}
+else if (!string.IsNullOrWhiteSpace(connFromConfig))
+{
+    connectionString = connFromConfig;
+    Console.WriteLine("✅ Using appsettings.json");
+}
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    Console.WriteLine("\n❌❌❌ FATAL ERROR ❌❌❌");
+    Console.WriteLine("No connection string found!");
+    Console.WriteLine("Please add environment variable in Render:");
+    Console.WriteLine("Key: ConnectionStrings__DefaultConnection");
+    Console.WriteLine("Value: postgresql://user:pass@host/db");
+    Console.WriteLine("❌❌❌❌❌❌❌❌❌❌❌❌❌❌");
+    
+    // Don't throw, just use a dummy to see what happens
+    connectionString = "Host=localhost;Database=dummy";
+    Console.WriteLine("⚠️ Using dummy connection string to continue startup");
+}
+else
+{
+    Console.WriteLine($"✅ Connection string length: {connectionString.Length}");
+    Console.WriteLine($"✅ Starts with: {connectionString.Substring(0, Math.Min(20, connectionString.Length))}...");
+}
+
+// Add DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+Console.WriteLine("✅ DbContext configured");
 
 // Register repositories
 builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>));
@@ -24,120 +88,98 @@ builder.Services.AddScoped<IBorrowRepository, BorrowRepository>();
 builder.Services.AddScoped<IQueueRepository, QueueRepository>();
 builder.Services.AddScoped<IMembershipRepository, MembershipRepository>();
 
+Console.WriteLine("✅ Repositories registered");
+
 var app = builder.Build();
 
-// Automatically apply migrations and seed the database
+Console.WriteLine("✅ App built");
+
+// Database setup
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     
     try
     {
-        Console.WriteLine("🔄 Checking database...");
-        
-        // Check if database can be connected
+        Console.WriteLine("\n🔄 Testing database connection...");
         var canConnect = await context.Database.CanConnectAsync();
         
-        if (canConnect)
+        if (!canConnect)
         {
-            Console.WriteLine("✅ Database connection successful!");
-            
-            // Get pending migrations
-            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
-            
-            if (pendingMigrations.Any())
-            {
-                Console.WriteLine($"📋 Found {pendingMigrations.Count()} pending migration(s)");
-                Console.WriteLine("🔄 Applying migrations...");
-                await context.Database.MigrateAsync();
-                Console.WriteLine("✅ Migrations applied!");
-            }
-            else
-            {
-                Console.WriteLine("✅ Database is up to date (no pending migrations)");
-            }
+            Console.WriteLine("❌ Cannot connect to database");
         }
         else
         {
-            Console.WriteLine("⚠️ Cannot connect to database. Creating database...");
-            await context.Database.EnsureCreatedAsync();
-            Console.WriteLine("✅ Database created!");
+            Console.WriteLine("✅ Database connected!");
+            
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            var pendingList = pendingMigrations.ToList();
+            
+            if (pendingList.Any())
+            {
+                Console.WriteLine($"📋 Applying {pendingList.Count} migration(s)...");
+                await context.Database.MigrateAsync();
+                Console.WriteLine("✅ Migrations applied");
+            }
+            else
+            {
+                Console.WriteLine("✅ No pending migrations");
+            }
+            
+            Console.WriteLine("🌱 Seeding database...");
+            await DbSeeder.SeedDatabase(context);
         }
-        
-        Console.WriteLine("🌱 Seeding database...");
-        await DbSeeder.SeedDatabase(context);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Database error: {ex.Message}");
+        Console.WriteLine($"\n❌ DATABASE ERROR:");
+        Console.WriteLine($"Message: {ex.Message}");
+        Console.WriteLine($"Type: {ex.GetType().Name}");
         
-        // If migration fails due to existing tables, try to continue anyway
         if (ex.Message.Contains("already exists"))
         {
-            Console.WriteLine("⚠️ Tables already exist, skipping migration...");
-            Console.WriteLine("🌱 Attempting to seed database...");
-            
+            Console.WriteLine("⚠️ Tables exist, trying to seed...");
             try
             {
                 await DbSeeder.SeedDatabase(context);
             }
-            catch (Exception seedEx)
-            {
-                Console.WriteLine($"⚠️ Seeding error (this is OK if already seeded): {seedEx.Message}");
-            }
+            catch { }
+        }
+        else if (ex.Message.Contains("Format of the initialization string"))
+        {
+            Console.WriteLine("\n❌ CONNECTION STRING IS INVALID OR EMPTY!");
+            Console.WriteLine("This means the environment variable is not set in Render.");
+            Console.WriteLine("Go to Render Dashboard → Environment → Add Variable:");
+            Console.WriteLine("  Key: ConnectionStrings__DefaultConnection");
+            Console.WriteLine("  Value: your PostgreSQL URL");
         }
         else
         {
-            Console.WriteLine($"❌ Stack trace: {ex.StackTrace}");
             throw;
         }
     }
 }
 
-// Enable Swagger
+// Configure middleware
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.UseAuthorization();
 app.MapControllers();
 
-// Root route
+// Routes
 app.MapGet("/", () => Results.Json(new
 {
-    status = "success",
-    message = "🎉 Library Management System API is running!",
-    version = "1.0.0",
-    database = "PostgreSQL",
-    timestamp = DateTime.UtcNow,
-    endpoints = new
-    {
-        swagger = "/swagger",
-        api = "/api",
-        health = "/health"
-    },
-    documentation = new
-    {
-        books = "/api/book",
-        users = "/api/user",
-        borrow = "/api/borrow",
-        queue = "/api/queue",
-        membership = "/api/membership",
-        dashboard = "/api/dashboard"
-    }
-}));
-
-// Health check
-app.MapGet("/health", () => Results.Json(new
-{
-    status = "healthy",
-    database = "PostgreSQL",
+    status = "running",
+    message = "Library Management System API",
     timestamp = DateTime.UtcNow
 }));
 
-Console.WriteLine("\n🚀 Application is running!");
-Console.WriteLine($"📍 Environment: {app.Environment.EnvironmentName}");
-Console.WriteLine($"📍 Database: PostgreSQL");
-Console.WriteLine("📍 Swagger UI: /swagger");
-Console.WriteLine("📍 API Base URL: /api\n");
+app.MapGet("/health", () => Results.Json(new
+{
+    status = "healthy",
+    timestamp = DateTime.UtcNow
+}));
+
+Console.WriteLine("\n✅✅✅ APPLICATION STARTED ✅✅✅\n");
 
 app.Run();
