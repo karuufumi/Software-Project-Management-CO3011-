@@ -60,46 +60,31 @@ export function UserDashboardData() {
         </div>
 
         <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          <img
-            src={viteLogo}
-            className="logo"
-            alt="Vite logo"
-            style={{ maxHeight: 55 }}
-          />
+          
           <ProgressBar
-            progressTitle="Genghis Khan"
+            progressTitle="John Doe"
             progressValue={1}
-            progressDisplayValue="60,031"
+            progressDisplayValue="1300"
             color="pink"
           />
         </div>
 
         <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          <img
-            src={viteLogo}
-            className="logo"
-            alt="Vite logo"
-            style={{ maxHeight: 55 }}
-          />
+          
           <ProgressBar
-            progressTitle="Adoflt Hitless"
+            progressTitle="Adam Jones"
             progressValue={1}
-            progressDisplayValue="30,712"
+            progressDisplayValue="1230"
             color="pink"
           />
         </div>
 
         <div style={{ display: "flex", width: "100%", gap: 10 }}>
-          <img
-            src={viteLogo}
-            className="logo"
-            alt="Vite logo"
-            style={{ maxHeight: 55 }}
-          />
+          
           <ProgressBar
-            progressTitle="Joseph Stalin"
+            progressTitle="Joseph Gilles"
             progressValue={1}
-            progressDisplayValue="9,864"
+            progressDisplayValue="1224"
             color="pink"
           />
         </div>
@@ -128,7 +113,7 @@ export function UserDashboardData() {
             style={{ maxHeight: 55 }}
           />
           <ProgressBar
-            progressTitle="Calculus 3"
+            progressTitle="The Lord of the Rings"
             progressValue={1}
             color="#0088FF"
           />

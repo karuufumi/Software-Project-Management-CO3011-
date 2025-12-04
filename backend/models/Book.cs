@@ -9,7 +9,9 @@ namespace backend.models
         
         [Required]
         public string Title { get; set; } = string.Empty;
-        
+
+        [Required]
+        public int Tier { get; set; } = 1;
         public string Author { get; set; } = string.Empty;
         
         public string ISBN { get; set; } = string.Empty;

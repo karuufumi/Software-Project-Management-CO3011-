@@ -17,5 +17,6 @@ namespace backend.repository
         Task<IEnumerable<BookModel>> SearchBooks(string searchTerm);
         Task<IEnumerable<BookModel>> GetBooksByGenre(string genre);
         Task<IEnumerable<BookModel>> GetBooksByAuthor(string author);
+        Task<int> GetBookTier(string bookname);
     } 
 }

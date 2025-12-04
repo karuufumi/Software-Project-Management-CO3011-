@@ -79,5 +79,17 @@ namespace backend.repository
                 .Where(b => b.Author == author)
                 .ToListAsync();
         }
+
+        public Task<int> GetBookTier(string bookname)
+        {
+        
+            var book =  _context.Books
+                .FirstOrDefaultAsync(b => b.Title == bookname);
+            if (book != null)
+            {
+                return Task.FromResult(book.Result.Tier);
+            }
+            throw new ArgumentException("Book not found");
+        }
     }
 }
