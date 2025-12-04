@@ -28,38 +28,52 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 Console.WriteLine($"✅ Connection string found (length: {connectionString.Length})");
+Console.WriteLine($"   First 30 chars: {connectionString.Substring(0, Math.Min(30, connectionString.Length))}...");
 
-// Parse and show connection details
-try
+// Build proper connection strings to test
+var testConnections = new Dictionary<string, string>();
+
+// Try to detect format and create variations
+if (connectionString.StartsWith("postgresql://") || connectionString.StartsWith("postgres://"))
 {
-    var builder2 = new NpgsqlConnectionStringBuilder(connectionString);
-    Console.WriteLine("\n🔍 PARSED CONNECTION DETAILS:");
-    Console.WriteLine($"  Protocol: postgresql://");
-    Console.WriteLine($"  Host: {builder2.Host}");
-    Console.WriteLine($"  Port: {builder2.Port}");
-    Console.WriteLine($"  Database: {builder2.Database}");
-    Console.WriteLine($"  Username: {builder2.Username}");
-    Console.WriteLine($"  Password: {(string.IsNullOrEmpty(builder2.Password) ? "NOT SET" : "***SET***")}");
-    Console.WriteLine($"  SSL Mode: {builder2.SslMode}");
-    Console.WriteLine($"  Timeout: {builder2.Timeout}s");
-    Console.WriteLine($"  Command Timeout: {builder2.CommandTimeout}s");
+    Console.WriteLine("📝 Detected URI format, converting to key-value...");
+    
+    try
+    {
+        // Parse URI manually
+        var uri = new Uri(connectionString);
+        var userInfo = uri.UserInfo.Split(':');
+        var username = userInfo[0];
+        var password = userInfo.Length > 1 ? userInfo[1] : "";
+        
+        // Create key-value connection string
+        var kvConnStr = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={username};Password={password}";
+        
+        testConnections["Key-Value SSL Require"] = kvConnStr + ";SSL Mode=Require;Trust Server Certificate=true";
+        testConnections["Key-Value SSL Prefer"] = kvConnStr + ";SSL Mode=Prefer";
+        testConnections["Key-Value No SSL"] = kvConnStr + ";SSL Mode=Disable";
+        
+        Console.WriteLine($"✅ Converted to: {kvConnStr.Replace(password, "***")}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ URI parsing failed: {ex.Message}");
+    }
 }
-catch (Exception ex)
+else if (connectionString.Contains("Host="))
 {
-    Console.WriteLine($"⚠️ Could not parse: {ex.Message}");
+    Console.WriteLine("📝 Detected key-value format");
+    testConnections["Original Key-Value"] = connectionString;
+}
+else
+{
+    Console.WriteLine("⚠️ Unknown connection string format!");
 }
 
-// Test different SSL configurations
+// Add hardcoded fallback
+testConnections["Hardcoded Fallback"] = "Host=dpg-d4nsli9r0fns73dirvf0-a.oregon-postgres.render.com;Port=5432;Database=lms_kuuo;Username=lms_kuuo_user;Password=9SHBC4OHLC2jVz0HRbFzqoqfhjU30TJ4;SSL Mode=Require;Trust Server Certificate=true";
+
 Console.WriteLine("\n🔍 TESTING CONNECTION VARIATIONS:");
-
-var testConnections = new Dictionary<string, string>
-{
-    ["Original"] = connectionString,
-    ["With SSL Require"] = AddOrUpdateQueryParam(connectionString, "sslmode", "require"),
-    ["With SSL Prefer"] = AddOrUpdateQueryParam(connectionString, "sslmode", "prefer"),
-    ["With SSL Disable"] = AddOrUpdateQueryParam(connectionString, "sslmode", "disable"),
-    ["SSL Require + Trust Cert"] = AddOrUpdateQueryParam(AddOrUpdateQueryParam(connectionString, "sslmode", "require"), "Trust Server Certificate", "true")
-};
 
 string? workingConnection = null;
 string? workingMethod = null;
@@ -76,35 +90,21 @@ foreach (var (name, testConn) in testConnections)
         Console.WriteLine("   Opening connection...");
         await conn.OpenAsync();
         
-        Console.WriteLine("   ✅ Connected! Checking server version...");
+        Console.WriteLine("   ✅ Connected! Checking server...");
         
         using var cmd = new NpgsqlCommand("SELECT version();", conn);
         var version = await cmd.ExecuteScalarAsync();
         
-        Console.WriteLine($"   ✅ PostgreSQL: {version?.ToString()?.Substring(0, Math.Min(60, version.ToString().Length))}");
+        Console.WriteLine($"   ✅ PostgreSQL: ");
         
         workingConnection = testConn;
         workingMethod = name;
         Console.WriteLine($"\n✅✅✅ SUCCESS WITH: {name} ✅✅✅");
         break;
     }
-    catch (PostgresException pgEx)
-    {
-        Console.WriteLine($"   ❌ PostgreSQL Error: {pgEx.Message}");
-        Console.WriteLine($"      SqlState: {pgEx.SqlState}");
-        Console.WriteLine($"      Severity: {pgEx.Severity}");
-    }
-    catch (NpgsqlException npgEx)
-    {
-        Console.WriteLine($"   ❌ Npgsql Error: {npgEx.Message}");
-        if (npgEx.InnerException != null)
-        {
-            Console.WriteLine($"      Inner: {npgEx.InnerException.Message}");
-        }
-    }
     catch (Exception ex)
     {
-        Console.WriteLine($"   ❌ Error: {ex.GetType().Name}: {ex.Message}");
+        Console.WriteLine($"   ❌ {ex.GetType().Name}: {ex.Message}");
         if (ex.InnerException != null)
         {
             Console.WriteLine($"      Inner: {ex.InnerException.Message}");
@@ -115,23 +115,23 @@ foreach (var (name, testConn) in testConnections)
 if (workingConnection == null)
 {
     Console.WriteLine("\n❌❌❌ ALL CONNECTION ATTEMPTS FAILED! ❌❌❌");
-    Console.WriteLine("\nPossible issues:");
-    Console.WriteLine("1. Database is not 'Available' in Render dashboard");
-    Console.WriteLine("2. Wrong database credentials");
-    Console.WriteLine("3. Network connectivity issue");
-    Console.WriteLine("4. Database hostname is incorrect");
-    Console.WriteLine("5. Firewall blocking connection");
+    Console.WriteLine("\n🔧 RECOMMENDED FIX:");
+    Console.WriteLine("In Render Dashboard → Your Web Service → Environment:");
+    Console.WriteLine("Set ConnectionStrings__DefaultConnection to:");
+    Console.WriteLine("Host=dpg-d4nsli9r0fns73dirvf0-a.oregon-postgres.render.com;Port=5432;Database=lms_kuuo;Username=lms_kuuo_user;Password=9SHBC4OHLC2jVz0HRbFzqoqfhjU30TJ4;SSL Mode=Require;Trust Server Certificate=true");
     
-    // Use original anyway to see EF error
-    workingConnection = connectionString;
+    // Use hardcoded fallback
+    workingConnection = testConnections["Hardcoded Fallback"];
+    Console.WriteLine("\n⚠️ Using hardcoded fallback connection string");
 }
 else
 {
-    Console.WriteLine($"\n✅ Will use working connection method: {workingMethod}");
-    connectionString = workingConnection;
+    Console.WriteLine($"\n✅ Will use: {workingMethod}");
 }
 
-// Configure DbContext
+connectionString = workingConnection;
+
+// Configure services
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -152,25 +152,19 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
-        Console.WriteLine("🔄 EF Core: CanConnectAsync()...");
+        Console.WriteLine("🔄 EF Core: Testing connection...");
         var canConnect = await context.Database.CanConnectAsync();
         
         if (canConnect)
         {
-            Console.WriteLine("✅ EF Core: Connected!");
+            Console.WriteLine("✅ EF Core: Connected successfully!");
             
             var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
             var pendingList = pendingMigrations.ToList();
             
             if (pendingList.Any())
             {
-                Console.WriteLine($"📋 Found {pendingList.Count} pending migration(s):");
-                foreach (var m in pendingList)
-                {
-                    Console.WriteLine($"   - {m}");
-                }
-                
-                Console.WriteLine("🔄 Applying migrations...");
+                Console.WriteLine($"📋 Applying {pendingList.Count} migration(s)...");
                 await context.Database.MigrateAsync();
                 Console.WriteLine("✅ Migrations applied!");
             }
@@ -181,41 +175,21 @@ using (var scope = app.Services.CreateScope())
             
             Console.WriteLine("🌱 Seeding database...");
             await DbSeeder.SeedDatabase(context);
-            Console.WriteLine("✅ Database setup complete!");
+            Console.WriteLine("✅ Database ready!");
         }
         else
         {
-            Console.WriteLine("❌ EF Core: CanConnectAsync() returned false");
+            Console.WriteLine("❌ EF Core: Connection failed");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"\n❌ EF CORE ERROR:");
-        Console.WriteLine($"   Type: {ex.GetType().Name}");
-        Console.WriteLine($"   Message: {ex.Message}");
-        
-        if (ex.InnerException != null)
-        {
-            Console.WriteLine($"   Inner Type: {ex.InnerException.GetType().Name}");
-            Console.WriteLine($"   Inner Message: {ex.InnerException.Message}");
-        }
+        Console.WriteLine($"\n❌ DATABASE ERROR: {ex.Message}");
         
         if (ex.Message.Contains("already exists"))
         {
-            Console.WriteLine("\n⚠️ Tables already exist, attempting seed...");
-            try
-            {
-                await DbSeeder.SeedDatabase(context);
-                Console.WriteLine("✅ Seeding succeeded");
-            }
-            catch (Exception seedEx)
-            {
-                Console.WriteLine($"⚠️ Seeding failed: {seedEx.Message}");
-            }
-        }
-        else
-        {
-            Console.WriteLine("\n⚠️ Continuing despite database error...");
+            Console.WriteLine("⚠️ Tables exist, seeding...");
+            try { await DbSeeder.SeedDatabase(context); } catch { }
         }
     }
 }
@@ -241,7 +215,6 @@ app.MapGet("/health", async (ApplicationDbContext context) =>
         return Results.Json(new
         {
             status = canConnect ? "healthy" : "unhealthy",
-            database = "PostgreSQL",
             connected = canConnect,
             timestamp = DateTime.UtcNow
         });
@@ -251,8 +224,6 @@ app.MapGet("/health", async (ApplicationDbContext context) =>
         return Results.Json(new
         {
             status = "unhealthy",
-            database = "PostgreSQL",
-            connected = false,
             error = ex.Message,
             timestamp = DateTime.UtcNow
         });
@@ -263,37 +234,26 @@ Console.WriteLine("\n✅✅✅ APPLICATION STARTED ✅✅✅\n");
 
 app.Run();
 
-// Helper functions
-static string AddOrUpdateQueryParam(string connStr, string key, string value)
-{
-    try
-    {
-        var builder = new NpgsqlConnectionStringBuilder(connStr);
-        
-        if (key.Equals("sslmode", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.SslMode = Enum.Parse<SslMode>(value, true);
-        }
-                
-        return builder.ConnectionString;
-    }
-    catch
-    {
-        // Fallback to simple query string append
-        var separator = connStr.Contains("?") ? "&" : "?";
-        return $"{connStr}{separator}{key}={value}";
-    }
-}
-
 static string MaskPassword(string connStr)
 {
     try
     {
+        if (connStr.Contains("Password="))
+        {
+            var parts = connStr.Split(';');
+            return string.Join(";", parts.Select(p => 
+                p.Trim().StartsWith("Password=", StringComparison.OrdinalIgnoreCase) 
+                    ? "Password=***" 
+                    : p));
+        }
         if (connStr.Contains("://"))
         {
-            var uri = new Uri(connStr.Split('?')[0]);
-            var queryString = connStr.Contains("?") ? "?" + connStr.Split('?')[1] : "";
-            return $"postgresql://{uri.UserInfo.Split(':')[0]}:***@{uri.Host}{uri.AbsolutePath}{queryString}";
+            var parts = connStr.Split('@');
+            if (parts.Length > 1)
+            {
+                var userPart = parts[0].Split(':');
+                return $"{userPart[0]}:{userPart[1]}:***@{parts[1]}";
+            }
         }
         return connStr;
     }
