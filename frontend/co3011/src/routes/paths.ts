@@ -29,6 +29,7 @@ export default {
     DASHBOARD: rootPaths.libRoot,
     BOOK_MANAGEMENT: `${rootPaths.libRoot}/book`,
     HISTORY: `${rootPaths.libRoot}/history`,
+    MISSING_BOOK_HANDLER: `${rootPaths.libRoot}/missing-book`,
   },
   ADMIN: {
     DASHBOARD: rootPaths.adminRoot,

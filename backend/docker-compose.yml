@@ -1,0 +1,22 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: library-management-api
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Host=dpg-d4nsli9r0fns73dirvf0-a.oregon-postgres.render.com;Port=5432;Database=lms_kuuo;Username=lms_kuuo_user;Password=9SHBC4OHLC2jVz0HRbFzqoqfhjU30TJ4;SSL Mode=Require;Trust Server Certificate=true
+    volumes:
+      # Persist database
+      - ./data:/app/data
+    restart: unless-stopped
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge

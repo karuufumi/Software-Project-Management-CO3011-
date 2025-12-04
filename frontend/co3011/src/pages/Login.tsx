@@ -1,27 +1,53 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const ACCOUNT = {
-  email: "admin@gmail.com",
-  password: "123456",
-};
-
 export default function Login() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  //const [totpCode, setTotpCode] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    if (email === ACCOUNT.email && password === ACCOUNT.password) {
-      localStorage.setItem("loggedIn", "true");
-      navigate("/");
-    } else {
-      setError("Incorrect email or password");
+    try {
+      const response = await fetch(
+        "https://lms-authentication-microservice.onrender.com/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            //totp_code: totpCode,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store authentication token if returned
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        localStorage.setItem("loggedIn", "true");
+        navigate("/");
+      } else {
+        setError(data.message || "Incorrect email or password");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,10 +84,10 @@ export default function Login() {
           </span>
         </div>
 
-        <div className="forgot">Forgot Password?</div>
+                <div className="forgot">Forgot Password?</div>
 
-        <button type="submit" className="login-btn">
-          Login
+        <button type="submit" className="login-btn" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <div className="divider">
@@ -69,7 +95,7 @@ export default function Login() {
         </div>
 
         <div className="signup-text">
-          Don’t have an account? <a href="#">Sign Up</a>
+          Don't have an account? <a href="/register">Sign Up</a>
         </div>
       </form>
     </div>

@@ -1,10 +1,39 @@
-from fastapi import FastAPI
-from . import models,db 
-from .routes import router as auth_router
-from .routes_user import router as users_router
+from db import init_mongodb, close_mongo_connection
+import uvicorn
+import os
+from dotenv import load_dotenv
+import atexit
 
-models.Base.metadata.create_all(bind=db.engine)
+# Load environment variables
+load_dotenv()
 
-app = FastAPI(title="Advanced Auth Microservice with Roles")
-app.include_router(auth_router)
-app.include_router(users_router)
+if __name__ == "__main__":
+    # Initialize MongoDB
+    try:
+        init_mongodb()
+        print("MongoDB initialized successfully!")
+    except Exception as e:
+        print(f"Failed to initialize MongoDB: {e}")
+        exit(1)
+    
+    # Register cleanup function
+    atexit.register(close_mongo_connection)
+    
+    # Validate JWT_SECRET
+    jwt_secret = os.getenv("JWT_SECRET")
+    if not jwt_secret or jwt_secret == "your-secret-key":
+        print("WARNING: Using default JWT_SECRET. Set JWT_SECRET environment variable!")
+    
+    # Get configuration from environment
+    host = os.getenv("APP_HOST", "0.0.0.0")
+    port = int(os.getenv("APP_PORT", "8000"))
+    
+    # Run FastAPI app
+    print(f"Starting server on {host}:{port}")
+    uvicorn.run(
+        "routes:app",
+        host=host,
+        port=port,
+        reload=False,
+        log_level="info"
+    )
