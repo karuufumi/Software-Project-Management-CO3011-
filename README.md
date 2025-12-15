@@ -145,6 +145,7 @@ https://www.figma.com/design/XMyyLNbycULmpWsaJKQW0Q/CO3011?node-id=0-1&t=c9WUnjP
    - Trần Nguyễn Anh Khoa
    - Nguyễn Thành Phát
    - Nguyễn Minh Quân
+     
    Roles rotated across: Product Owner, Scrum Master, Business Analyst, Developer.
    
 **10.  Notes for Instructors**   
