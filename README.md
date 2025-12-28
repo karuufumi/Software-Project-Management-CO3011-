@@ -1,5 +1,5 @@
 **1. Project Overview**  
-         This repository contains the final submission for the CO3011 Software Project Management module. The project is a full-stack, containerized, multi-language web application designed to support university library operations, including registration,          authentication, member management, book management, borrowing, returning, and reporting. Development followed the Scrum framework over 5 sprints, with rotating roles (PO, SM, BA, Dev), backlog refinement, requirement injections, sprint reviews, and retrospectives.
+         This repository contains the assignment of Software Project Managemen course (CO3011). The project is a full-stack, containerized, multi-language web application designed to support essential operations for a University Library Management System, including registration, authentication, member management, book management, borrowing, returning, and reporting. Development spanned over 5 sprints, with rotating roles (PO, SM, BA, Dev), backlog refinement, requirement injections, sprint reviews, and retrospectives.
          
 
 ***2. Key Features (MVP Scope)***
